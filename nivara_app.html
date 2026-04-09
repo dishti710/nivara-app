@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nivara</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --teal:#8b6fbf;--teal-l:#b39fe4;--teal-p:#f3ecff;
+  --rose:#b86fa8;--rose-l:#d697c7;--rose-p:#f9eaf5;
+  --bg:#f8f3fd;--card:#ffffff;
+  --text:#3a2a4b;--mid:#7a6991;--soft:#b1a2c3;
+  --border:rgba(130,90,190,0.18);
+  --red:#c05070;--green:#7d63a3;--amber:#b06820;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:28px 16px 60px;}
+
+/* ── PHONE SHELL ── */
+.phone-wrap{position:relative;}
+.phone{
+  width:320px;background:#fff;border-radius:48px;overflow:hidden;
+  box-shadow:0 4px 10px rgba(95,70,150,0.08),0 20px 60px rgba(95,70,150,0.15),0 0 0 1px rgba(130,90,190,0.18);
+  position:relative;
+}
+.notch{
+  width:100px;height:26px;background:#0f1e1a;border-radius:0 0 18px 18px;
+  position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:30;
+}
+.status-bar{
+  padding:18px 24px 8px;display:flex;justify-content:space-between;align-items:center;
+  font-size:11px;font-weight:500;color:var(--mid);z-index:5;position:relative;
+}
+
+/* ── SCREENS ── */
+.screen{display:none;min-height:600px;background:var(--bg);flex-direction:column;}
+.screen.active{display:flex;}
+.screen-scroll{flex:1;overflow-y:auto;padding-bottom:4px;}
+.screen-scroll::-webkit-scrollbar{display:none;}
+
+/* ── TAB BAR ── */
+.tab-bar{
+  background:rgba(255,255,255,0.98);border-top:1px solid var(--border);
+  padding:10px 0 18px;display:flex;justify-content:space-around;
+  position:sticky;bottom:0;z-index:10;backdrop-filter:blur(12px);
+}
+.tab-item{
+  display:flex;flex-direction:column;align-items:center;gap:3px;
+  font-size:9px;color:var(--soft);cursor:pointer;padding:4px 12px;
+  border-radius:12px;transition:color 0.2s;user-select:none;
+}
+.tab-item.active{color:var(--teal);}
+.tab-item svg{display:block;}
+
+/* ── DASHBOARD ── */
+.dash-header{padding:10px 22px 14px;display:flex;justify-content:space-between;align-items:center;}
+.greet-small{font-size:11px;color:var(--soft);letter-spacing:0.4px;}
+.greet-name{font-size:18px;font-weight:600;color:var(--text);}
+.avatar{
+  width:40px;height:40px;border-radius:50%;
+  background:linear-gradient(135deg,#b49ce4,#8463c3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;font-weight:600;color:#fff;cursor:pointer;user-select:none;position:relative;
+}
+.avatar-ring{
+  position:absolute;inset:-3px;border-radius:50%;
+  border:2px solid transparent;transition:border-color 0.3s;
+}
+
+.phase-card{
+  margin:0 16px 14px;border-radius:24px;padding:20px 22px 18px;
+  background:linear-gradient(135deg,#6e5f9a 0%,#8a73bf 55%,#a58ad9 100%);
+  color:#fff;position:relative;overflow:hidden;
+}
+.phase-card::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.06);}
+.phase-card::after{content:'';position:absolute;bottom:-40px;left:10px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.04);}
+.phase-label{font-size:10px;opacity:.7;letter-spacing:1.2px;text-transform:uppercase;}
+.phase-day{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:400;line-height:1;margin:4px 0;}
+.phase-sub{font-size:11px;opacity:.7;}
+.phase-bar-wrap{margin-top:14px;background:rgba(255,255,255,0.18);border-radius:4px;height:3px;}
+.phase-bar{height:3px;border-radius:4px;background:rgba(255,255,255,0.85);width:60%;}
+.phase-meta{display:flex;justify-content:space-between;margin-top:6px;font-size:9px;opacity:.6;}
+
+.stat-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 16px 12px;}
+.stat-tile{background:#fff;border-radius:18px;padding:14px 16px;border:1px solid var(--border);}
+.stat-icon{font-size:18px;margin-bottom:6px;}
+.stat-val{font-size:22px;font-weight:600;color:var(--text);}
+.stat-lbl{font-size:10px;color:var(--soft);margin-top:2px;}
+
+.insight{
+  margin:0 16px 16px;padding:12px 16px;border-radius:16px;
+  background:#fff;border:1px solid var(--border);display:flex;gap:10px;align-items:center;
+}
+.insight-line{width:3px;height:36px;border-radius:2px;background:var(--teal-l);flex-shrink:0;}
+.insight-text{font-size:12px;color:var(--mid);line-height:1.55;}
+
+/* ── CALENDAR ── */
+.cal-hdr{padding:12px 22px;display:flex;justify-content:space-between;align-items:center;}
+.cal-title{font-size:18px;font-weight:600;color:var(--text);}
+.cal-nav{display:flex;gap:8px;}
+.cal-nav-btn{width:28px;height:28px;border-radius:50%;background:var(--teal-p);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--teal);cursor:pointer;}
+.wdays{display:grid;grid-template-columns:repeat(7,1fr);margin:0 16px 6px;text-align:center;font-size:9px;color:var(--soft);font-weight:600;letter-spacing:.3px;}
+.cgrid{display:grid;grid-template-columns:repeat(7,1fr);margin:0 16px;gap:2px;}
+.cday{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--mid);border-radius:50%;position:relative;cursor:pointer;transition:background .15s;}
+.cday:hover{background:rgba(135,105,190,0.1);}
+.cday.period{background:rgba(192,80,112,0.15);color:#a04060;font-weight:500;}
+.cday.fertile{background:rgba(150,120,200,0.14);color:#5f4b84;}
+.cday.ovul{background:rgba(135,105,190,0.2);color:#503f70;font-weight:600;}
+.cday.today{background:var(--teal);color:#fff;font-weight:700;}
+.cday.dim{color:rgba(154,184,176,0.5);}
+.cday.sd::after{content:'';position:absolute;bottom:3px;width:4px;height:4px;border-radius:50%;background:rgba(100,160,200,0.55);}
+.cal-legend{display:flex;gap:10px;margin:10px 16px;flex-wrap:wrap;}
+.leg-item{display:flex;align-items:center;gap:4px;font-size:9px;color:var(--soft);}
+.leg-dot{width:7px;height:7px;border-radius:50%;}
+.pred-box{margin:10px 16px 16px;background:#fff;border-radius:16px;padding:14px 16px;border:1px solid var(--border);}
+.pred-row{display:flex;justify-content:space-between;font-size:11px;color:var(--mid);padding:5px 0;border-bottom:1px solid var(--border);}
+.pred-row:last-child{border:none;}
+.pred-val{color:var(--text);font-weight:500;}
+
+/* ── MOOD ── */
+.mood-hdr{padding:12px 22px 10px;display:flex;justify-content:space-between;align-items:center;}
+.mood-title{font-size:18px;font-weight:600;color:var(--text);}
+.mood-date{font-size:10px;color:var(--soft);}
+.mood-quote{margin:0 20px 14px;text-align:center;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:var(--mid);line-height:1.55;}
+.mood-faces{display:flex;justify-content:space-between;margin:0 16px 16px;}
+.mface{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;cursor:pointer;transition:transform .2s,box-shadow .2s;border:2px solid transparent;}
+.mface:hover{transform:scale(1.15);}
+.mface.sel{border-color:var(--teal);box-shadow:0 0 0 3px rgba(135,105,190,0.18);transform:scale(1.15);}
+.sym-sec{margin:0 16px 12px;}
+.sym-lbl{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--soft);margin-bottom:8px;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{
+  padding:5px 11px;border-radius:20px;font-size:11px;color:var(--mid);
+  background:rgba(145,110,200,0.07);border:1px solid rgba(145,110,200,0.18);
+  cursor:pointer;transition:all .15s;user-select:none;
+}
+.chip:hover{background:rgba(145,110,200,0.14);}
+.chip.on{background:rgba(135,105,190,0.16);border-color:var(--teal);color:var(--teal);font-weight:500;}
+.unsafe-chip{border-color:rgba(192,80,112,0.25);color:rgba(160,60,90,0.7);background:rgba(255,245,248,0.7);}
+.notes-area{
+  margin:0 16px 12px;background:#fff;border-radius:14px;
+  padding:11px 14px;font-size:12px;color:var(--soft);
+  border:1px solid var(--border);min-height:52px;cursor:text;
+  outline:none;
+}
+.save-btn{
+  margin:0 16px 16px;padding:13px;border-radius:16px;text-align:center;
+  background:linear-gradient(135deg,#8b6fbf,#b39fe4);color:#fff;
+  font-size:13px;font-weight:600;cursor:pointer;letter-spacing:.3px;
+}
+
+/* ── PROFILE / SETTINGS ── */
+.prof-hdr{padding:12px 22px;display:flex;justify-content:space-between;align-items:center;}
+.prof-title{font-size:18px;font-weight:600;color:var(--text);}
+.prof-card{
+  margin:4px 16px 14px;background:#fff;border-radius:20px;
+  padding:16px 18px;display:flex;align-items:center;gap:14px;border:1px solid var(--border);
+}
+.prof-av{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#b49ce4,#8463c3);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:#fff;}
+.prof-name{font-size:15px;font-weight:600;color:var(--text);}
+.prof-sub{font-size:10px;color:var(--soft);}
+.settings-sec{margin:0 16px 12px;}
+.sec-lbl{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--soft);margin-bottom:8px;}
+.sec-group{background:#fff;border-radius:18px;border:1px solid var(--border);overflow:hidden;}
+.set-row{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;}
+.set-row:last-child{border:none;}
+.set-row:hover{background:rgba(145,110,200,0.05);}
+.srow-icon{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.srow-text{flex:1;}
+.srow-lbl{font-size:13px;color:var(--text);}
+.srow-sub{font-size:10px;color:var(--soft);}
+.srow-val{font-size:13px;color:var(--soft);}
+.toggle{width:38px;height:22px;border-radius:11px;background:linear-gradient(135deg,#8b6fbf,#b39fe4);position:relative;cursor:pointer;transition:background .3s;flex-shrink:0;}
+.toggle::after{content:'';position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:right .25s,left .25s;box-shadow:0 1px 4px rgba(0,0,0,0.15);}
+.toggle.off{background:rgba(154,184,176,0.3);}
+.toggle.off::after{right:auto;left:2px;}
+
+/* ── OVERLAYS ── */
+.overlay{
+  position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;
+  background:rgba(10,25,20,0.7);backdrop-filter:blur(8px);padding:20px;
+}
+.overlay.on{display:flex;}
+.ocard{
+  background:#fff;border-radius:32px;width:100%;max-width:360px;
+  overflow:hidden;box-shadow:0 24px 80px rgba(10,30,20,0.35);
+  animation:pop .25s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes pop{from{transform:scale(0.88) translateY(16px);opacity:0;}to{transform:scale(1) translateY(0);opacity:1;}}
+.ohdr{padding:22px 22px 18px;text-align:center;}
+.ohdr h2{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:500;color:var(--text);margin-bottom:4px;}
+.ohdr p{font-size:11px;color:var(--soft);}
+.obody{padding:16px 18px 22px;}
+
+/* Pattern */
+.pat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;padding:20px 30px;justify-items:center;}
+.pdot{
+  width:24px;height:24px;border-radius:50%;
+  background:rgba(145,110,200,0.15);border:2px solid rgba(145,110,200,0.25);
+  cursor:pointer;transition:all .15s;
+}
+.pdot.lit{background:var(--teal);border-color:var(--teal);box-shadow:0 0 12px rgba(135,105,190,0.45);}
+.pat-hint{text-align:center;font-size:11px;color:var(--soft);padding-bottom:4px;}
+.pat-wrong{color:var(--red);animation:shk .28s;}
+@keyframes shk{0%,100%{transform:translateX(0)}25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.pat-close{text-align:center;margin-top:12px;font-size:11px;color:var(--soft);cursor:pointer;padding:6px;}
+
+/* Vault nav */
+.vnav{display:flex;gap:2px;background:rgba(145,110,200,0.1);border-radius:14px;padding:3px;margin-bottom:14px;}
+.vtab{flex:1;padding:7px 4px;text-align:center;font-size:10px;color:var(--mid);border-radius:11px;cursor:pointer;transition:all .15s;}
+.vtab.on{background:var(--teal);color:#fff;font-weight:600;}
+
+/* SOS screen */
+.sos-hdr{background:linear-gradient(135deg,#8a1a30,#c03050);padding:22px;text-align:center;color:#fff;}
+.sos-hdr h2{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:500;margin-bottom:4px;}
+.sos-ring-wrap{display:flex;justify-content:center;padding:14px 0 6px;}
+.sos-ring{width:88px;height:88px;}
+.sos-ring circle{fill:none;stroke-linecap:round;}
+.sos-timer{text-align:center;font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:400;color:var(--red);margin:4px 0;}
+.sos-line{display:flex;align-items:center;gap:10px;padding:9px 12px;background:rgba(192,48,80,0.07);border-radius:12px;margin-bottom:7px;font-size:12px;color:#7a2030;}
+.sos-dot{width:8px;height:8px;border-radius:50%;background:var(--red);flex-shrink:0;animation:blink 1s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.sos-cancel{width:100%;padding:14px;border-radius:14px;background:rgba(192,48,80,0.1);color:var(--red);font-size:13px;font-weight:600;cursor:pointer;border:1px solid rgba(192,48,80,0.25);text-align:center;margin-top:8px;}
+
+/* Contacts */
+.contact-card{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--teal-p);border-radius:16px;margin-bottom:8px;border:1px solid rgba(145,110,200,0.18);}
+.cc-av{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:#fff;flex-shrink:0;}
+.cc-name{font-size:13px;font-weight:600;color:var(--text);}
+.cc-role{font-size:10px;color:var(--soft);}
+.cc-btns{margin-left:auto;display:flex;gap:6px;}
+.cc-btn{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;}
+add-cc{width:100%;padding:11px;border-radius:14px;border:1.5px solid rgba(135,105,190,0.3);text-align:center;font-size:12px;color:var(--teal);cursor:pointer;margin-top:4px;}
+
+/* Recordings */
+.rec-card{display:flex;align-items:center;gap:10px;padding:11px 13px;background:var(--teal-p);border-radius:14px;margin-bottom:8px;border:1px solid rgba(145,110,200,0.15);}
+.rec-icon{width:36px;height:36px;border-radius:10px;background:rgba(135,105,190,0.14);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.rec-name{font-size:12px;font-weight:500;color:var(--text);}
+.rec-meta{font-size:10px;color:var(--soft);}
+.rec-dur{font-size:11px;color:var(--teal);margin-left:auto;font-weight:600;}
+.new-rec-btn{width:100%;padding:12px;border-radius:14px;background:linear-gradient(135deg,#8b6fbf,#b39fe4);color:#fff;text-align:center;font-size:13px;font-weight:600;cursor:pointer;margin-top:4px;display:flex;align-items:center;justify-content:center;gap:6px;}
+
+/* Patterns */
+.pat-insight{background:var(--teal-p);border-radius:14px;padding:12px 14px;border:1px solid rgba(145,110,200,0.2);margin-bottom:10px;}
+.pi-title{font-size:11px;font-weight:700;color:var(--teal);margin-bottom:8px;}
+.pi-body{font-size:11px;color:var(--mid);line-height:1.75;}
+.pi-alert{background:rgba(255,248,240,0.9);border-color:rgba(176,104,32,0.25);color:#6a3810;}
+
+/* Vault SOS hold button */
+.sos-big{
+  width:88px;height:88px;border-radius:50%;
+  background:linear-gradient(135deg,#8a1a30,#c03050);
+  margin:4px auto 14px;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:15px;font-weight:700;color:#fff;letter-spacing:.5px;
+  box-shadow:0 4px 24px rgba(192,48,80,0.35);user-select:none;
+  transition:transform .1s;
+}
+.sos-big:hover{transform:scale(1.04);}
+.sos-status{display:flex;align-items:center;gap:8px;padding:9px 12px;background:rgba(135,105,190,0.08);border-radius:12px;margin-bottom:7px;font-size:11px;color:var(--teal);}
+.sstat-dot{width:7px;height:7px;border-radius:50%;background:var(--teal-l);flex-shrink:0;}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+  background:#1a2e28;color:#e0f0ec;border-radius:22px;
+  padding:10px 20px;font-size:12px;font-weight:500;letter-spacing:.2px;
+  box-shadow:0 8px 28px rgba(0,0,0,0.28);opacity:0;pointer-events:none;
+  transition:opacity .3s;z-index:300;white-space:nowrap;
+}
+.toast.show{opacity:1;}
+
+/* Anon mode badge on welcome */
+.anon-btn{
+  margin:0 16px 12px;padding:12px;border-radius:16px;text-align:center;
+  border:1.5px solid rgba(135,105,190,0.3);color:var(--teal);font-size:12px;cursor:pointer;
+  font-weight:500;
+}
+
+/* Welcome / onboarding screen */
+.welcome-bg{
+  background:linear-gradient(160deg,#0f1e1a 0%,#1a3028 60%,#0d2018 100%);
+  min-height:600px;display:flex;flex-direction:column;justify-content:space-between;
+  padding:50px 28px 36px;color:#fff;
+}
+.wel-logo{font-family:'Cormorant Garamond',serif;font-size:56px;font-weight:400;color:#fff;letter-spacing:-1px;}
+.wel-tag{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:16px;color:rgba(160,220,200,.65);margin-bottom:48px;}
+.wel-desc{font-size:13px;color:rgba(160,220,200,.55);line-height:1.7;margin-bottom:32px;}
+.wel-btn{padding:14px;border-radius:16px;text-align:center;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px;}
+.wel-primary{background:linear-gradient(135deg,#8b6fbf,#b39fe4);color:#fff;}
+.wel-anon{border:1.5px solid rgba(140,110,190,.3);color:rgba(160,130,220,.75);font-size:12px;}
+
+/* Auth screen */
+.auth-bg{
+  background:var(--bg);min-height:600px;display:flex;flex-direction:column;
+  padding:40px 24px 36px;
+}
+.auth-title{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:400;color:var(--text);margin-bottom:6px;}
+.auth-sub{font-size:12px;color:var(--soft);margin-bottom:32px;}
+.auth-input{
+  width:100%;padding:14px 16px;border-radius:14px;border:1.5px solid var(--border);
+  font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);
+  background:#fff;outline:none;margin-bottom:12px;
+  transition:border-color .2s;
+}
+.auth-input:focus{border-color:var(--teal);}
+.auth-btn{width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,#8b6fbf,#b39fe4);color:#fff;font-size:14px;font-weight:600;cursor:pointer;text-align:center;margin-top:4px;}
+.auth-otp-row{display:flex;gap:10px;margin-bottom:14px;}
+.otp-box{flex:1;padding:14px 0;text-align:center;border-radius:14px;border:1.5px solid var(--border);font-size:20px;font-weight:600;color:var(--text);background:#fff;}
+.auth-skip{text-align:center;font-size:11px;color:var(--soft);margin-top:14px;cursor:pointer;}
+
+/* Encryption note */
+.enc-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(145,110,200,0.1);border-radius:20px;padding:4px 10px;font-size:10px;color:var(--teal);font-weight:500;margin-top:8px;}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════ MAIN APP ════════════════════════════════ -->
+<div class="phone-wrap">
+<div class="phone" id="phone">
+  <div class="notch"></div>
+
+  <!-- STATUS BAR -->
+  <div class="status-bar">
+    <span id="clock">9:41</span>
+    <div style="display:flex;gap:5px;align-items:center;">
+      <svg width="14" height="10" viewBox="0 0 14 10" fill="none"><rect x="0" y="5" width="2" height="5" rx=".5" fill="currentColor" opacity=".4"/><rect x="3" y="3" width="2" height="7" rx=".5" fill="currentColor" opacity=".6"/><rect x="6" y="1" width="2" height="9" rx=".5" fill="currentColor" opacity=".8"/><rect x="9" y="0" width="2" height="10" rx=".5" fill="currentColor"/><rect x="12" y="3" width="1.5" height="4" rx=".5" fill="currentColor" opacity=".5"/></svg>
+      <svg width="22" height="11" viewBox="0 0 22 11" fill="none"><rect x=".5" y=".5" width="18" height="10" rx="2.5" stroke="currentColor"/><rect x="1.5" y="1.5" width="13" height="8" rx="1.5" fill="currentColor" opacity=".8"/><path d="M20 3.5C20.8 3.9 21.5 4.5 21.5 5.5C21.5 6.5 20.8 7.1 20 7.5V3.5Z" fill="currentColor" opacity=".5"/></svg>
+    </div>
+  </div>
+
+  <!-- ══ WELCOME ══ -->
+  <div class="screen active" id="screen-welcome">
+    <div class="welcome-bg">
+      <div>
+        <div class="wel-logo">Nivara</div>
+        <div class="wel-tag">Your cycle. Your calm.</div>
+        <div class="wel-desc">Track your cycle, understand your body, and log how you feel — privately and securely.</div>
+      </div>
+      <div>
+        <div class="wel-btn wel-primary" onclick="showScreen('auth')">Get started</div>
+        <div class="wel-btn wel-anon" onclick="anonLogin()">------></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ AUTH ══ -->
+  <div class="screen" id="screen-auth">
+    <div class="auth-bg">
+      <div style="margin-bottom:auto;">
+        <div style="margin-bottom:32px;">
+          <div class="auth-title">Sign in</div>
+          <div class="auth-sub">Enter your phone number to receive a one-time code</div>
+        </div>
+        <div id="auth-step-phone">
+          <input class="auth-input" type="tel" placeholder="+91 98765 43210" id="phoneInput">
+          <div class="auth-btn" onclick="sendOTP()">Send code →</div>
+        </div>
+        <div id="auth-step-otp" style="display:none;">
+          <div style="font-size:12px;color:var(--soft);margin-bottom:12px;">Enter the 6-digit code sent to your number</div>
+          <div class="auth-otp-row">
+            <div class="otp-box">·</div><div class="otp-box">·</div><div class="otp-box">·</div>
+            <div class="otp-box">·</div><div class="otp-box">·</div><div class="otp-box">·</div>
+          </div>
+          <div class="auth-btn" onclick="verifyOTP()">Verify & continue</div>
+        </div>
+        <div class="auth-skip" onclick="showScreen('welcome')">← Back</div>
+      </div>
+      <div style="text-align:center;margin-top:24px;">
+        <div class="enc-badge">🔒 AES-256 encrypted · Firebase Auth</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ DASHBOARD ══ -->
+  <div class="screen" id="screen-home">
+    <div class="screen-scroll">
+      <div class="dash-header">
+        <div>
+          <div class="greet-small">Good morning,</div>
+          <div class="greet-name">Priya 🌿</div>
+        </div>
+        <!-- HIDDEN TRIGGER: triple-tap avatar = silent SOS (a1) — zero UI feedback -->
+        <div class="avatar" id="avatar" title="">
+          P
+          <div class="avatar-ring" id="avatarRing"></div>
+        </div>
+      </div>
+
+      <div class="phase-card">
+        <div class="phase-label">Luteal Phase</div>
+        <div class="phase-day">Day 18</div>
+        <div class="phase-sub">Next period in ~10 days</div>
+        <div class="phase-bar-wrap"><div class="phase-bar"></div></div>
+        <div class="phase-meta"><span>Day 1</span><span>28-day cycle</span></div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-tile"><div class="stat-icon">💧</div><div class="stat-val">28</div><div class="stat-lbl">Avg cycle length</div></div>
+        <div class="stat-tile"><div class="stat-icon">🌙</div><div class="stat-val">5</div><div class="stat-lbl">Period days</div></div>
+        <div class="stat-tile"><div class="stat-icon">😌</div><div class="stat-val">Calm</div><div class="stat-lbl">Today's mood</div></div>
+        <div class="stat-tile"><div class="stat-icon">📊</div><div class="stat-val" style="font-size:14px;color:var(--teal);">Stable</div><div class="stat-lbl">Mood trend</div></div>
+      </div>
+
+      <div class="insight">
+        <div class="insight-line"></div>
+        <div class="insight-text">You're in the luteal phase. Energy may dip — rest, hydrate, and be kind to yourself today. 🌿</div>
+      </div>
+
+      <div style="margin:0 16px 16px;background:#fff;border-radius:16px;padding:14px 16px;border:1px solid var(--border);">
+        <div style="font-size:11px;font-weight:600;color:var(--soft);letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;">This Week</div>
+        <div style="display:flex;gap:6px;justify-content:space-between;">
+          <div id="wk-days"></div>
+        </div>
+      </div>
+    </div>
+    <div class="tab-bar" id="tb-home">
+      <div class="tab-item active" onclick="showScreen('home')"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 8L9 2L16 8V16H12V11H6V16H2V8Z" stroke="currentColor" stroke-width="1.4" fill="none"/></svg><span>Home</span></div>
+      <div class="tab-item" onclick="showScreen('calendar')"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="3" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M6 2v3M12 2v3M2 8h14" stroke="currentColor" stroke-width="1.3"/></svg><span>Cycle</span></div>
+      <div class="tab-item" onclick="showScreen('mood')"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M6.5 8.5C6.5 8.5 7 10 9 10C11 10 11.5 8.5 11.5 8.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="6.5" cy="7" r=".8" fill="currentColor"/><circle cx="11.5" cy="7" r=".8" fill="currentColor"/></svg><span>Mood</span></div>
+      <div class="tab-item" onclick="showScreen('settings')"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="7" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M3 15c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.3"/></svg><span>Profile</span></div>
+    </div>
+  </div>
+
+  <!-- ══ CALENDAR ══ -->
+  <div class="screen" id="screen-calendar">
+    <div class="screen-scroll">
+      <div class="cal-hdr">
+        <div class="cal-title">April 2026</div>
+        <div class="cal-nav"><div class="cal-nav-btn">‹</div><div class="cal-nav-btn">›</div></div>
+      </div>
+      <div class="wdays"><div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div></div>
+      <div class="cgrid" id="calGrid"></div>
+      <div class="cal-legend">
+        <div class="leg-item"><div class="leg-dot" style="background:rgba(192,80,112,.5)"></div>Period</div>
+        <div class="leg-item"><div class="leg-dot" style="background:rgba(145,110,200,.5)"></div>Fertile</div>
+        <div class="leg-item"><div class="leg-dot" style="background:rgba(135,105,190,.5)"></div>Ovulation</div>
+      </div>
+      <div class="pred-box">
+        <div style="font-size:11px;font-weight:600;color:var(--mid);margin-bottom:8px;">📊 Predictions</div>
+        <div class="pred-row"><span>Next period</span><span class="pred-val">Apr 8 – Apr 13</span></div>
+        <div class="pred-row"><span>Ovulation</span><span class="pred-val">Mar 25</span></div>
+        <div class="pred-row"><span>Fertile window</span><span class="pred-val">Mar 22 – 27</span></div>
+        <div class="pred-row"><span>Cycle length</span><span class="pred-val">28 days</span></div>
+      </div>
+
+      <!-- HIDDEN TRIGGER: Long-press + upward swipe on this calendar area = a3 gesture -->
+      <div id="calSwipeZone" style="margin:10px 16px;height:44px;background:rgba(135,105,190,0.05);border-radius:14px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;">
+        <span style="font-size:11px;color:var(--soft);">Swipe up to view more</span>
+      </div>
+    </div>
+    <div class="tab-bar">
+      <div class="tab-item" onclick="showScreen('home')"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 8L9 2L16 8V16H12V11H6V16H2V8Z" stroke="currentColor" stroke-width="1.4" fill="none"/></svg><span>Home</span></div>
+      <div class="tab-item active" onclick="showScreen('calendar')"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="3" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M6 2v3M12 2v3M2 8h14" stroke="currentColor" stroke-width="1.3"/></svg><span>Cycle</span></div>
+      <div class="tab-item" onclick="showScreen('mood')"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="currentColor" stroke-width="1.3"/><circle cx="6.5" cy="7" r=".8" fill="currentColor"/><circle cx="11.5" cy="7" r=".8" fill="currentColor"/></svg><span>Mood</span></div>
+      <div class="tab-item" onclick="showScreen('settings')"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="7" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M3 15c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.3"/></svg><span>Profile</span></div>
+    </div>
+  </div>
+
+  <!-- ══ MOOD ══ -->
+  <div class="screen" id="screen-mood">
+    <div class="screen-scroll">
+      <div class="mood-hdr"><div class="mood-title">How are you?</div><div class="mood-date" id="moodDate"></div></div>
+      <div class="mood-quote">"Your feelings are valid,<br>whatever they are today."</div>
+      <div class="mood-faces">
+        <div class="mface" onclick="selMood(this)">😔</div>
+        <div class="mface" onclick="selMood(this)">😕</div>
+        <div class="mface sel" onclick="selMood(this)">😌</div>
+        <div class="mface" onclick="selMood(this)">😊</div>
+        <div class="mface" onclick="selMood(this)">🥰</div>
+      </div>
+      <div class="sym-sec">
+        <div class="sym-lbl">Physical</div>
+        <div class="chips">
+          <div class="chip on" onclick="toggleChip(this)">Cramps</div>
+          <div class="chip" onclick="toggleChip(this)">Bloating</div>
+          <div class="chip" onclick="toggleChip(this)">Headache</div>
+          <div class="chip" onclick="toggleChip(this)">Fatigue</div>
+          <div class="chip" onclick="toggleChip(this)">Back pain</div>
+        </div>
+      </div>
+      <div class="sym-sec" style="margin-top:10px;">
+        <div class="sym-lbl">Emotional state</div>
+        <div class="chips">
+          <div class="chip on" onclick="toggleChip(this)">Calm</div>
+          <div class="chip" onclick="toggleChip(this)">Anxious</div>
+          <div class="chip" onclick="toggleChip(this)">Irritable</div>
+          <div class="chip" onclick="toggleChip(this)">Hopeful</div>
+          <!-- HIDDEN: triple-tap this chip = a1 trigger (distress_flag) — no UI feedback -->
+          <div class="chip unsafe-chip" id="unsafeChip" onclick="tapUnsafe()">Vulnerable</div>
+        </div>
+      </div>
+      <div class="notes-area" contenteditable="true" id="noteArea" data-placeholder="Add a private note…">Add a private note…</div>
+      <div class="save-btn" onclick="saveEntry()">Save today's entry</div>
+    </div>
+    <div class="tab-bar">
+      <div class="tab-item" onclick="showScreen('home')"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 8L9 2L16 8V16H12V11H6V16H2V8Z" stroke="currentColor" stroke-width="1.4" fill="none"/></svg><span>Home</span></div>
+      <div class="tab-item" onclick="showScreen('calendar')"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="3" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M6 2v3M12 2v3M2 8h14" stroke="currentColor" stroke-width="1.3"/></svg><span>Cycle</span></div>
+      <div class="tab-item active" onclick="showScreen('mood')"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M6.5 8.5C6.5 8.5 7 10 9 10C11 10 11.5 8.5 11.5 8.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="6.5" cy="7" r=".8" fill="currentColor"/><circle cx="11.5" cy="7" r=".8" fill="currentColor"/></svg><span>Mood</span></div>
+      <div class="tab-item" onclick="showScreen('settings')"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="7" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M3 15c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.3"/></svg><span>Profile</span></div>
+    </div>
+  </div>
+
+  <!-- ══ SETTINGS ══ -->
+  <div class="screen" id="screen-settings">
+    <div class="screen-scroll">
+      <div class="prof-hdr"><div class="prof-title">Profile</div></div>
+      <div class="prof-card">
+        <div class="prof-av">P</div>
+        <div><div class="prof-name">Priya Sharma</div><div class="prof-sub" id="profModeBadge">Nivara Premium · priya@email.com</div></div>
+      </div>
+
+      <div class="settings-sec">
+        <div class="sec-lbl">Notifications</div>
+        <div class="sec-group">
+          <div class="set-row"><div class="srow-icon" style="background:rgba(160,120,200,.15);">🔔</div><div class="srow-text"><div class="srow-lbl">Period reminders</div><div class="srow-sub">3 days before</div></div><div class="toggle" onclick="this.classList.toggle('off')"></div></div>
+          <div class="set-row"><div class="srow-icon" style="background:rgba(100,180,140,.15);">🌿</div><div class="srow-text"><div class="srow-lbl">Daily wellness check</div><div class="srow-sub">9:00 AM</div></div><div class="toggle" onclick="this.classList.toggle('off')"></div></div>
+        </div>
+      </div>
+
+      <div class="settings-sec">
+        <div class="sec-lbl">Privacy</div>
+        <div class="sec-group">
+          <div class="set-row"><div class="srow-icon" style="background:rgba(145,110,200,.12);">🔒</div><div class="srow-text"><div class="srow-lbl">App lock</div><div class="srow-sub">Face ID enabled</div></div><div class="toggle" onclick="this.classList.toggle('off')"></div></div>
+          <div class="set-row"><div class="srow-icon" style="background:rgba(145,110,200,.12);">📍</div><div class="srow-text"><div class="srow-lbl">Location sharing</div><div class="srow-sub">Off</div></div><div class="toggle off" onclick="this.classList.toggle('off')"></div></div>
+        </div>
+      </div>
+
+      <div class="settings-sec">
+        <div class="sec-lbl">Data</div>
+        <div class="sec-group">
+          <div class="set-row" onclick="showToast('Preparing export…')"><div class="srow-icon" style="background:rgba(145,110,200,.12);">📊</div><div class="srow-text"><div class="srow-lbl">Export health data</div></div><div class="srow-val">›</div></div>
+          <div class="set-row" onclick="showToast('Cycle data synced')"><div class="srow-icon" style="background:rgba(145,110,200,.1);">☁️</div><div class="srow-text"><div class="srow-lbl">Sync to device health</div></div><div class="srow-val">›</div></div>
+        </div>
+      </div>
+
+      <!-- 
+        HIDDEN VAULT ACCESS:
+        This row is intentionally labeled "Wellness check-in" 
+        Real function: pattern-locked vault entry
+        Access: only revealed to user via onboarding setup flow 
+        Pattern: [1,5,9,7] — never shown in UI 
+      -->
+      <div class="settings-sec">
+        <div class="sec-lbl">Check-in</div>
+        <div class="sec-group">
+          <div class="set-row" onclick="openPattern()">
+            <div class="srow-icon" style="background:rgba(145,110,200,.1);">✦</div>
+            <div class="srow-text">
+              <div class="srow-lbl">Wellness check-in</div>
+              <div class="srow-sub">Scheduled · contacts notified</div>
+            </div>
+            <div class="toggle" style="background:linear-gradient(135deg,#8b6fbf,#b39fe4)"></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:16px;"></div>
+    </div>
+    <div class="tab-bar">
+      <div class="tab-item" onclick="showScreen('home')"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 8L9 2L16 8V16H12V11H6V16H2V8Z" stroke="currentColor" stroke-width="1.4" fill="none"/></svg><span>Home</span></div>
+      <div class="tab-item" onclick="showScreen('calendar')"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="3" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M6 2v3M12 2v3M2 8h14" stroke="currentColor" stroke-width="1.3"/></svg><span>Cycle</span></div>
+      <div class="tab-item" onclick="showScreen('mood')"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="currentColor" stroke-width="1.3"/><circle cx="6.5" cy="7" r=".8" fill="currentColor"/><circle cx="11.5" cy="7" r=".8" fill="currentColor"/></svg><span>Mood</span></div>
+      <div class="tab-item active" onclick="showScreen('settings')"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="7" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M3 15c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.3"/></svg><span>Profile</span></div>
+    </div>
+  </div>
+
+</div><!-- /phone -->
+</div><!-- /phone-wrap -->
+
+<!-- ══════════════ OVERLAYS (outside phone for proper backdrop) ══════════════ -->
+
+<!-- Pattern Lock -->
+<div class="overlay" id="ov-pattern">
+  <div class="ocard">
+    <div class="ohdr" style="background:linear-gradient(140deg,#0d1f1c,#1a3028);">
+      <h2 style="color:#fff;font-family:'Cormorant Garamond',serif;">Wellness Check-in</h2>
+      <p style="color:rgba(160,220,200,.6);">Confirm your identity to continue</p>
+    </div>
+    <div class="obody">
+      <div class="pat-hint" id="patHint">Enter your personal pattern</div>
+      <div class="pat-grid" id="patDots">
+        <div class="pdot" data-n="1" onclick="tapDot(1)"></div>
+        <div class="pdot" data-n="2" onclick="tapDot(2)"></div>
+        <div class="pdot" data-n="3" onclick="tapDot(3)"></div>
+        <div class="pdot" data-n="4" onclick="tapDot(4)"></div>
+        <div class="pdot" data-n="5" onclick="tapDot(5)"></div>
+        <div class="pdot" data-n="6" onclick="tapDot(6)"></div>
+        <div class="pdot" data-n="7" onclick="tapDot(7)"></div>
+        <div class="pdot" data-n="8" onclick="tapDot(8)"></div>
+        <div class="pdot" data-n="9" onclick="tapDot(9)"></div>
+      </div>
+      <div style="text-align:center;margin-top:2px;">
+        <span style="font-size:10px;color:var(--soft);">Pattern: 1 → 5 → 9 → 7</span>
+      </div>
+      <div class="pat-close" onclick="closeOverlay('ov-pattern')">Cancel</div>
+    </div>
+  </div>
+</div>
+
+<!-- Safety Vault -->
+<div class="overlay" id="ov-vault">
+  <div class="ocard" style="max-height:90vh;overflow-y:auto;">
+    <div class="ohdr" style="background:linear-gradient(140deg,#0d1f1c,#1a3028);">
+      <h2 style="color:#fff;">Safety Vault</h2>
+      <p style="color:rgba(160,220,200,.6);">Private · Pattern-protected · Encrypted</p>
+      <div class="enc-badge" style="margin:8px auto 0;">● Active protection</div>
+    </div>
+    <div class="obody">
+      <div class="vnav">
+        <div class="vtab on" onclick="vTab('sos')">SOS</div>
+        <div class="vtab" onclick="vTab('contacts')">Contacts</div>
+        <div class="vtab" onclick="vTab('records')">Records</div>
+        <div class="vtab" onclick="vTab('patterns')">Patterns</div>
+      </div>
+
+      <!-- SOS TAB -->
+      <div id="vt-sos">
+        <div style="text-align:center;padding:4px 0 10px;">
+          <div style="font-size:11px;color:var(--soft);margin-bottom:10px;">Hold 1.5s to trigger · Silent · No screen change</div>
+          <div class="sos-big" id="sosBigBtn"
+            onmousedown="startSOSHold()" ontouchstart="startSOSHold()"
+            onmouseup="cancelSOSHold()" ontouchend="cancelSOSHold()">SOS</div>
+          <div style="font-size:10px;color:var(--soft);">Or: avatar ×3 tap · calendar long-press+swipe · 3× device knock</div>
+        </div>
+        <div class="sos-status"><div class="sstat-dot"></div>3 contacts linked · SMS + push ready</div>
+        <div class="sos-status"><div class="sstat-dot"></div>Background recording on trigger</div>
+        <div class="sos-status"><div class="sstat-dot" style="background:rgba(100,160,200,.8)"></div>SQLite offline queue active</div>
+        <div class="sos-status"><div class="sstat-dot" style="background:rgba(176,104,32,.8)"></div>Distress detection: 2 flags this week</div>
+      </div>
+
+      <!-- CONTACTS TAB -->
+      <div id="vt-contacts" style="display:none;">
+        <div class="contact-card"><div class="cc-av" style="background:linear-gradient(135deg,#c05070,#e08090);">M</div><div><div class="cc-name">Mom</div><div class="cc-role">Primary · +91 98765 43210</div></div><div class="cc-btns"><div class="cc-btn" style="background:rgba(145,110,200,.15);">📞</div><div class="cc-btn" style="background:rgba(145,110,200,.12);">💬</div></div></div>
+        <div class="contact-card"><div class="cc-av" style="background:linear-gradient(135deg,#b59de7,#8b70d2);">R</div><div><div class="cc-name">Riya</div><div class="cc-role">Secondary · +91 87654 32109</div></div><div class="cc-btns"><div class="cc-btn" style="background:rgba(145,110,200,.15);">📞</div><div class="cc-btn" style="background:rgba(145,110,200,.12);">💬</div></div></div>
+        <div class="contact-card"><div class="cc-av" style="background:linear-gradient(135deg,#9b80d5,#7a5cb8);">D</div><div><div class="cc-name">Dr. Meera</div><div class="cc-role">GP · +91 76543 21098</div></div><div class="cc-btns"><div class="cc-btn" style="background:rgba(145,110,200,.15);">📞</div><div class="cc-btn" style="background:rgba(145,110,200,.12);">💬</div></div></div>
+        <div class="add-cc">+ Add trusted contact</div>
+        <div style="margin-top:10px;padding:10px 12px;background:rgba(135,105,190,.07);border-radius:12px;">
+          <div style="font-size:10px;color:var(--teal);line-height:1.6;">All contacts encrypted with AES-256-GCM. Accessible only after pattern unlock. Server stores ciphertext only.</div>
+        </div>
+      </div>
+
+      <!-- RECORDINGS TAB -->
+      <div id="vt-records" style="display:none;">
+        <div class="rec-card"><div class="rec-icon">🎙️</div><div><div class="rec-name">Auto-recording #3</div><div class="rec-meta">Apr 2 · SOS trigger (a1)</div></div><div class="rec-dur">1:24</div></div>
+        <div class="rec-card"><div class="rec-icon">🎙️</div><div><div class="rec-name">Manual note</div><div class="rec-meta">Mar 28 · Saved manually</div></div><div class="rec-dur">0:38</div></div>
+        <div class="rec-card"><div class="rec-icon">📝</div><div><div class="rec-name">Incident log</div><div class="rec-meta">Mar 15 · Text + location</div></div><div class="rec-dur">›</div></div>
+        <div class="new-rec-btn" onclick="showToast('🔴 Recording started…')"><span>🔴</span>New recording</div>
+        <div style="margin-top:10px;padding:10px 12px;background:rgba(135,105,190,.07);border-radius:12px;">
+          <div style="font-size:10px;color:var(--teal);line-height:1.6;">Audio stored in encrypted S3 vault. Presigned URLs expire in 300s. Auto-deleted after 30 days. 60s chunks uploaded continuously.</div>
+        </div>
+      </div>
+
+      <!-- PATTERNS TAB -->
+      <div id="vt-patterns" style="display:none;">
+        <div class="pat-insight">
+          <div class="pi-title">⚠️ Passive Distress Detection</div>
+          <div class="pi-body">● "Unsafe" mood logged 2× this week<br>● App usage: mostly 11pm – 2am<br>● Anxious tag: 4 days running</div>
+        </div>
+        <div class="pat-insight pi-alert">
+          <div class="pi-title" style="color:#8a4010;">🔔 Passive alert sent (a2)</div>
+          <div class="pi-body" style="color:#6a3010;">A check-in SMS was sent to Mom on Apr 1. No health data shared. Message read: "Priya's wellness check-in is pending — please reach out."</div>
+        </div>
+        <div class="pat-insight" style="background:#fff;">
+          <div class="pi-title">📊 Alert Sensitivity</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+            <span style="font-size:10px;color:var(--soft);">Low</span>
+            <div style="flex:1;height:4px;background:rgba(145,110,200,.2);border-radius:2px;"><div style="width:65%;height:100%;background:var(--teal);border-radius:2px;"></div></div>
+            <span style="font-size:10px;color:var(--soft);">High</span>
+          </div>
+          <div style="font-size:10px;color:var(--soft);margin-top:6px;">Triggers passive alert after 3 distress flags in 7 days</div>
+        </div>
+        <div class="pat-insight" style="background:#fff;">
+          <div class="pi-title">🔐 Trigger Log</div>
+          <div class="pi-body">Apr 2 · 23:14 · a1 (avatar) · Location captured<br>Mar 28 · 02:07 · a1 (avatar) · Cancelled after 12s<br>Mar 15 · 19:43 · a2 (passive) · 3 contacts notified</div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:16px;">
+        <span style="font-size:11px;color:var(--soft);cursor:pointer;" onclick="closeOverlay('ov-vault')">Lock vault</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SOS Active -->
+<div class="overlay" id="ov-sos">
+  <div class="ocard">
+    <div class="sos-hdr">
+      <h2>Alert Active</h2>
+      <p style="opacity:.75;font-size:11px;">Contacts are being notified</p>
+    </div>
+    <div class="obody">
+      <div class="sos-ring-wrap">
+        <svg class="sos-ring" viewBox="0 0 88 88">
+          <circle class="bg" cx="44" cy="44" r="38" stroke="rgba(192,48,80,.15)" stroke-width="6"/>
+          <circle id="sosProgress" cx="44" cy="44" r="38" stroke="#c03050" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="239" stroke-dashoffset="0" transform="rotate(-90 44 44)" style="transition:stroke-dashoffset 1s linear;"/>
+        </svg>
+      </div>
+      <div class="sos-timer" id="sosTimer">0:30</div>
+      <div class="sos-line"><div class="sos-dot"></div>Sending location to 3 contacts…</div>
+      <div class="sos-line"><div class="sos-dot"></div>Background recording started</div>
+      <div class="sos-line"><div class="sos-dot"></div>SMS dispatch via Twilio (retry ×3)</div>
+      <div class="sos-cancel" onclick="cancelSOS()">✕ Cancel — I'm safe</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Clock ──
+function tick(){
+  const now=new Date();
+  document.getElementById('clock').textContent=now.getHours()+':'+(now.getMinutes()<10?'0':'')+now.getMinutes();
+}
+tick();setInterval(tick,30000);
+
+// ── Mood date ──
+const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const nd=new Date();
+document.getElementById('moodDate').textContent=days[nd.getDay()]+', '+months[nd.getMonth()]+' '+nd.getDate();
+
+// ── Week strip ──
+function buildWeekStrip(){
+  const c=document.getElementById('wk-days');
+  const moods=['😔','😌','😊','😌','🥰','😊','😌'];
+  const labels=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  c.style.display='flex';c.style.gap='6px';c.style.width='100%';
+  c.innerHTML=labels.map((l,i)=>`
+    <div style="flex:1;text-align:center;">
+      <div style="font-size:16px;margin-bottom:4px;">${moods[i]}</div>
+      <div style="font-size:9px;color:var(--soft);">${l}</div>
+    </div>
+  `).join('');
+}
+buildWeekStrip();
+
+// ── Calendar ──
+function buildCal(){
+  const g=document.getElementById('calGrid');g.innerHTML='';
+  const period=[1,2,3,4,5],fertile=[14,15,16,17,18,19],ovul=[16],today=4,safe=[7,11,14,18,21];
+  for(let p=0;p<2;p++){const d=document.createElement('div');d.className='cday dim';g.appendChild(d);}
+  for(let d=1;d<=30;d++){
+    const el=document.createElement('div');el.className='cday';el.textContent=d;
+    if(period.includes(d))el.classList.add('period');
+    else if(ovul.includes(d))el.classList.add('ovul');
+    else if(fertile.includes(d))el.classList.add('fertile');
+    if(d===today)el.classList.add('today');
+    if(safe.includes(d))el.classList.add('sd');
+    g.appendChild(el);
+  }
+}
+buildCal();
+
+// ── Screen nav ──
+function showScreen(n){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+n).classList.add('active');
+}
+
+// ── Auth flow (demo) ──
+function sendOTP(){
+  const v=document.getElementById('phoneInput').value.trim();
+  if(!v){showToast('Enter a phone number');return;}
+  document.getElementById('auth-step-phone').style.display='none';
+  document.getElementById('auth-step-otp').style.display='block';
+  showToast('Code sent to '+v.slice(-4).padStart(v.length,'•'));
+}
+function verifyOTP(){
+  showToast('Verified ✓');
+  setTimeout(()=>showScreen('home'),600);
+}
+function anonLogin(){
+  document.getElementById('profModeBadge').textContent='Private mode · No account';
+  showToast('Signed in privately');
+  setTimeout(()=>showScreen('home'),500);
+}
+
+// ── Mood ──
+function selMood(el){document.querySelectorAll('.mface').forEach(f=>f.classList.remove('sel'));el.classList.add('sel');}
+function toggleChip(el){if(!el.classList.contains('unsafe-chip'))el.classList.toggle('on');}
+function saveEntry(){showToast('Entry saved 🌿');}
+
+// ── Avatar triple-tap → silent SOS (a1) — zero UI feedback on screen ──
+let aTaps=0,aTimer=null;
+document.getElementById('avatar').addEventListener('click',function(){
+  aTaps++;
+  clearTimeout(aTimer);
+  aTimer=setTimeout(()=>{aTaps=0;},1600);
+  if(aTaps>=3){
+    aTaps=0;
+    // No toast, no color change — silent as per spec
+    silentTrigger('a1');
+  }
+});
+
+// ── Unsafe chip triple-tap → silent (a1 variant) ──
+let uTaps=0,uTimer=null;
+function tapUnsafe(){
+  uTaps++;
+  clearTimeout(uTimer);
+  uTimer=setTimeout(()=>{uTaps=0;},1800);
+  if(uTaps>=3){
+    uTaps=0;
+    silentTrigger('a1');
+  } else {
+    // chip just toggles normally on first 2 taps — no tells
+    document.getElementById('unsafeChip').classList.toggle('on');
+  }
+}
+
+// ── Calendar long-press + swipe → a3 ──
+let calHoldT=null;
+const csz=document.getElementById('calSwipeZone');
+csz.addEventListener('mousedown',()=>{calHoldT=setTimeout(()=>{/* haptic only in real app */},800);});
+csz.addEventListener('mouseup',()=>clearTimeout(calHoldT));
+let swipeStartY=0;
+csz.addEventListener('touchstart',e=>{swipeStartY=e.touches[0].clientY;calHoldT=setTimeout(()=>{},800);});
+csz.addEventListener('touchend',e=>{
+  clearTimeout(calHoldT);
+  const dy=swipeStartY-e.changedTouches[0].clientY;
+  // if held 800ms and swiped up >30px → a3 trigger (silent)
+});
+
+// ── Silent trigger (real app: API call to /api/a with trigger code) ──
+function silentTrigger(code){
+  // In production: POST /api/a { c: code, loc: { la, lo, ac } }
+  // Zero UI change on current screen — activate SOS countdown in vault only
+  activateSOS();
+}
+
+// ── Pattern lock ──
+let pSeq=[],correct=[1,5,9,7],pAttempts=0;
+function openPattern(){
+  pSeq=[];
+  document.querySelectorAll('.pdot').forEach(d=>d.classList.remove('lit'));
+  document.getElementById('patHint').textContent='Enter your personal pattern';
+  document.getElementById('patHint').className='pat-hint';
+  document.getElementById('ov-pattern').classList.add('on');
+}
+function tapDot(n){
+  if(pSeq.length>=4)return;
+  pSeq.push(n);
+  document.querySelector(`.pdot[data-n="${n}"]`).classList.add('lit');
+  if(pSeq.length===correct.length){
+    const ok=pSeq.every((v,i)=>v===correct[i]);
+    if(ok){
+      pAttempts=0;
+      setTimeout(()=>{closeOverlay('ov-pattern');vTab('sos');document.getElementById('ov-vault').classList.add('on');},280);
+    } else {
+      pAttempts++;
+      document.getElementById('patHint').className='pat-hint pat-wrong';
+      document.getElementById('patHint').textContent=pAttempts>=3?'Too many attempts. Try in 60s.':'Incorrect pattern';
+      setTimeout(()=>{
+        pSeq=[];
+        document.querySelectorAll('.pdot').forEach(d=>d.classList.remove('lit'));
+        document.getElementById('patHint').textContent='Enter your personal pattern';
+        document.getElementById('patHint').className='pat-hint';
+      },700);
+    }
+  }
+}
+
+// ── Vault tabs ──
+function vTab(t){
+  ['sos','contacts','records','patterns'].forEach(id=>{
+    document.getElementById('vt-'+id).style.display=id===t?'block':'none';
+  });
+  document.querySelectorAll('.vtab').forEach((el,i)=>{
+    el.classList.toggle('on',['sos','contacts','records','patterns'][i]===t);
+  });
+}
+
+// ── SOS Hold ──
+let sosHold=null;
+function startSOSHold(){
+  document.getElementById('sosBigBtn').style.transform='scale(.9)';
+  sosHold=setTimeout(()=>{
+    document.getElementById('sosBigBtn').style.transform='';
+    closeOverlay('ov-vault');
+    activateSOS();
+  },1500);
+}
+function cancelSOSHold(){clearTimeout(sosHold);document.getElementById('sosBigBtn').style.transform='';}
+
+// ── SOS Active ──
+let sosCD=30,sosInt=null;
+function activateSOS(){
+  sosCD=30;
+  document.getElementById('ov-sos').classList.add('on');
+  updateSOSDisplay();
+  sosInt=setInterval(()=>{
+    sosCD--;updateSOSDisplay();
+    if(sosCD<=0)clearInterval(sosInt);
+  },1000);
+}
+function updateSOSDisplay(){
+  document.getElementById('sosTimer').textContent='0:'+(sosCD<10?'0':'')+sosCD;
+  const circ=239;
+  document.getElementById('sosProgress').style.strokeDashoffset=circ*(1-sosCD/30);
+}
+function cancelSOS(){
+  clearInterval(sosInt);
+  closeOverlay('ov-sos');
+  // No toast here either — silent cancellation per spec
+}
+
+// ── Overlay helpers ──
+function closeOverlay(id){document.getElementById(id).classList.remove('on');}
+
+// ── Toast ──
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+</script>
+</body>
+</html>

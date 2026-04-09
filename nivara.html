@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Luna — Wellness App</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --purple: #7e5cb7;
+  --purple-light: #a06cd5;
+  --purple-pale: #f0e8ff;
+  --pink: #d4608a;
+  --pink-light: #f0c0d8;
+  --bg: #f5eef8;
+  --card: #ffffff;
+  --text: #3a2850;
+  --text-mid: #7a6090;
+  --text-soft: #b0a0c8;
+  --border: rgba(180,150,220,0.2);
+  --red: #e05070;
+  --green: #5a9070;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 32px 16px 48px;
+}
+
+h1.page-title {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 22px;
+  color: var(--purple);
+  margin-bottom: 6px;
+  text-align: center;
+}
+.page-sub {
+  font-size: 12px;
+  color: var(--text-soft);
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+/* ── Phone Shell ── */
+.phone {
+  width: 300px;
+  background: #fff;
+  border-radius: 44px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(120,80,180,0.1), 0 20px 60px rgba(100,60,160,0.18), 0 0 0 1px rgba(180,150,230,0.3);
+  position: relative;
+}
+
+.notch {
+  width: 90px; height: 24px;
+  background: #1a1a2e;
+  border-radius: 0 0 16px 16px;
+  position: absolute;
+  top: 0; left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+}
+
+.status-bar {
+  padding: 16px 22px 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-mid);
+  position: relative;
+  z-index: 5;
+}
+
+.screen {
+  display: none;
+  min-height: 580px;
+  background: linear-gradient(160deg, #f9f0ff 0%, #f2eaf8 60%, #fdf4f8 100%);
+  position: relative;
+  overflow: hidden;
+}
+.screen.active { display: block; }
+
+/* ── Tab Bar ── */
+.tab-bar {
+  background: rgba(255,255,255,0.95);
+  border-top: 1px solid var(--border);
+  padding: 10px 16px 16px;
+  display: flex;
+  justify-content: space-around;
+  position: sticky;
+  bottom: 0;
+  backdrop-filter: blur(10px);
+}
+.tab-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  font-size: 9px;
+  color: var(--text-soft);
+  cursor: pointer;
+  transition: color 0.2s;
+  padding: 4px 8px;
+  border-radius: 10px;
+}
+.tab-item.active { color: var(--purple); }
+.tab-item svg { display: block; }
+
+/* ── SCREEN 1: DASHBOARD ── */
+.dash-header {
+  padding: 10px 20px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.greeting-label { font-size: 11px; color: var(--text-soft); letter-spacing: 0.5px; }
+.greeting-name { font-size: 17px; font-weight: 600; color: var(--text); }
+
+.avatar {
+  width: 38px; height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e8b4d8, #c9a0e8);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: #fff; font-weight: 600;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+}
+.avatar-dot {
+  position: absolute;
+  top: 0; right: 0;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: #e8a0c0;
+  border: 2px solid #fdf8ff;
+  transition: background 0.3s, transform 0.3s;
+}
+.avatar.armed .avatar-dot {
+  background: var(--red);
+  transform: scale(1.3);
+  animation: pulse-dot 1s infinite;
+}
+@keyframes pulse-dot { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+.cycle-card {
+  margin: 0 16px 14px;
+  background: linear-gradient(135deg, #7e5cb7 0%, #a06cd5 60%, #c084d4 100%);
+  border-radius: 22px;
+  padding: 18px 20px 16px;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.cycle-card::before {
+  content: '';
+  position: absolute; top: -20px; right: -20px;
+  width: 110px; height: 110px; border-radius: 50%;
+  background: rgba(255,255,255,0.07);
+}
+.cycle-phase { font-size: 10px; opacity: 0.8; letter-spacing: 1px; text-transform: uppercase; }
+.cycle-day { font-size: 36px; font-weight: 300; font-family: 'Playfair Display', serif; margin: 2px 0; }
+.cycle-sub { font-size: 11px; opacity: 0.75; }
+.cycle-bar-wrap { margin-top: 12px; background: rgba(255,255,255,0.2); border-radius: 4px; height: 4px; }
+.cycle-bar-fill { height: 4px; border-radius: 4px; background: rgba(255,255,255,0.85); width: 58%; }
+.cycle-meta { display: flex; justify-content: space-between; margin-top: 6px; font-size: 9px; opacity: 0.7; }
+
+.quick-stats {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px; margin: 0 16px 14px;
+}
+.stat-card {
+  background: #fff; border-radius: 16px; padding: 12px 14px;
+  border: 1px solid var(--border);
+}
+.stat-icon { font-size: 16px; margin-bottom: 6px; }
+.stat-val { font-size: 20px; font-weight: 600; color: var(--text); }
+.stat-lbl { font-size: 10px; color: var(--text-soft); margin-top: 1px; }
+
+.insight-strip {
+  margin: 0 16px 14px;
+  background: #fff5fa; border-radius: 14px;
+  padding: 12px 14px; border: 1px solid rgba(220,180,210,0.25);
+  display: flex; align-items: center; gap: 10px;
+}
+.insight-dot { width: 8px; height: 8px; border-radius: 50%; background: #e08ab0; flex-shrink: 0; }
+.insight-text { font-size: 11px; color: #7a5a80; line-height: 1.5; }
+
+/* ── SCREEN 2: CALENDAR ── */
+.cal-header {
+  padding: 10px 20px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.cal-title { font-size: 18px; font-weight: 600; color: var(--text); }
+.cal-nav { display: flex; gap: 8px; }
+.cal-nav-btn {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(180,140,220,0.12);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: var(--purple); cursor: pointer;
+}
+
+.cal-weekdays {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  margin: 0 16px; text-align: center;
+  font-size: 9px; color: var(--text-soft);
+  font-weight: 500; letter-spacing: 0.3px; margin-bottom: 6px;
+}
+.cal-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  margin: 0 16px; gap: 2px;
+}
+.cal-day {
+  aspect-ratio: 1;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: var(--text-mid);
+  border-radius: 50%; position: relative;
+  cursor: pointer; transition: background 0.15s;
+}
+.cal-day:hover { background: rgba(150,100,200,0.1); }
+.cal-day.period { background: rgba(208,90,130,0.15); color: #c05080; font-weight: 500; }
+.cal-day.fertile { background: rgba(140,190,160,0.2); color: #5a9070; }
+.cal-day.ovulation { background: rgba(180,120,220,0.18); color: #8050b0; font-weight: 600; }
+.cal-day.today { background: var(--purple); color: #fff; font-weight: 600; }
+.cal-day.dim { color: #d4c8e4; }
+.cal-day.safe-mark::after {
+  content: '';
+  position: absolute; bottom: 2px;
+  width: 4px; height: 4px; border-radius: 50%;
+  background: rgba(130,160,220,0.6);
+}
+
+.cal-legend {
+  display: flex; gap: 10px; margin: 10px 16px; flex-wrap: wrap;
+}
+.legend-item { display: flex; align-items: center; gap: 4px; font-size: 9px; color: var(--text-soft); }
+.legend-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+.cal-prediction {
+  margin: 10px 16px 0;
+  background: linear-gradient(120deg, #f8f0ff, #fff5fa);
+  border-radius: 14px; padding: 12px 14px;
+  border: 1px solid rgba(200,160,220,0.2);
+}
+.pred-title { font-size: 11px; font-weight: 500; color: #7a5090; margin-bottom: 6px; }
+.pred-row {
+  display: flex; justify-content: space-between;
+  font-size: 10px; color: #9070a0;
+  padding: 4px 0; border-bottom: 1px solid rgba(200,180,220,0.15);
+}
+.pred-row:last-child { border-bottom: none; }
+.pred-val { color: #5a3580; font-weight: 500; }
+
+/* ── SCREEN 3: MOOD ── */
+.mood-header {
+  padding: 10px 20px 8px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.mood-title { font-size: 18px; font-weight: 600; color: var(--text); }
+.mood-date { font-size: 10px; color: var(--text-soft); }
+
+.mood-prompt {
+  margin: 0 16px 14px; text-align: center;
+}
+.mood-prompt-text {
+  font-family: 'Playfair Display', serif;
+  font-style: italic; font-size: 13px; color: #9070b0; line-height: 1.5;
+}
+
+.mood-faces { display: flex; justify-content: space-between; margin: 0 16px 14px; }
+.mood-face {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 2px solid transparent;
+}
+.mood-face:hover { transform: scale(1.15); }
+.mood-face.selected { border-color: var(--purple); box-shadow: 0 0 0 3px rgba(126,92,183,0.2); transform: scale(1.15); }
+
+.symptom-section { margin: 0 16px 10px; }
+.symptom-title { font-size: 9px; font-weight: 600; color: var(--text-soft); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+.symptom-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  padding: 5px 10px; border-radius: 20px;
+  font-size: 10px; color: var(--text-mid);
+  background: rgba(200,180,230,0.12);
+  border: 1px solid rgba(180,150,210,0.25);
+  cursor: pointer; transition: all 0.15s;
+  user-select: none;
+}
+.chip:hover { background: rgba(180,140,220,0.2); }
+.chip.active { background: rgba(126,92,183,0.15); border-color: var(--purple); color: var(--purple); font-weight: 500; }
+.chip.unsafe {
+  border-color: rgba(210,160,180,0.35); color: #c07090;
+  background: rgba(255,240,245,0.5);
+}
+.chip.unsafe.triggered { background: rgba(220,80,100,0.1); border-color: #e05070; color: #e05070; animation: chip-pulse 0.8s 3; }
+@keyframes chip-pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+
+.notes-area {
+  margin: 0 16px 12px;
+  background: #fff; border-radius: 12px;
+  padding: 10px 14px; font-size: 11px; color: var(--text-soft);
+  border: 1px solid var(--border); min-height: 50px;
+  cursor: text;
+}
+
+.log-btn {
+  margin: 0 16px 14px;
+  background: linear-gradient(135deg, #7e5cb7, #c084d4);
+  color: #fff; border-radius: 14px;
+  padding: 12px; text-align: center;
+  font-size: 13px; font-weight: 500;
+  cursor: pointer; transition: opacity 0.2s;
+}
+.log-btn:hover { opacity: 0.9; }
+
+/* ── SCREEN 4: SETTINGS ── */
+.set-header { padding: 10px 20px 6px; display: flex; justify-content: space-between; align-items: center; }
+.set-title { font-size: 18px; font-weight: 600; color: var(--text); }
+
+.set-profile {
+  margin: 4px 16px 14px;
+  background: #fff; border-radius: 18px;
+  padding: 14px 16px; display: flex; align-items: center; gap: 12px;
+  border: 1px solid var(--border);
+}
+.set-avatar {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: linear-gradient(135deg, #e8b4d8, #c9a0e8);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: #fff; font-weight: 600;
+}
+.set-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.set-sub { font-size: 10px; color: var(--text-soft); }
+
+.set-section { margin: 0 16px 12px; }
+.set-section-title { font-size: 9px; font-weight: 600; letter-spacing: 1px; color: var(--text-soft); text-transform: uppercase; margin-bottom: 6px; }
+.set-group { background: #fff; border-radius: 16px; border: 1px solid var(--border); overflow: hidden; }
+.set-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-bottom: 1px solid var(--border);
+}
+.set-row:last-child { border-bottom: none; }
+.set-row-icon {
+  width: 30px; height: 30px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.set-row-text { flex: 1; }
+.set-row-label { font-size: 12px; color: var(--text); }
+.set-row-sub { font-size: 10px; color: var(--text-soft); }
+.set-row-value { font-size: 14px; color: var(--text-soft); }
+.toggle {
+  width: 36px; height: 20px; border-radius: 10px;
+  background: linear-gradient(135deg, #a06cd5, #c084d4);
+  position: relative; cursor: pointer; transition: background 0.3s; flex-shrink: 0;
+}
+.toggle::after {
+  content: ''; position: absolute;
+  top: 2px; right: 2px;
+  width: 16px; height: 16px; border-radius: 50%; background: #fff;
+  transition: right 0.3s;
+}
+.toggle.off { background: rgba(200,180,230,0.3); }
+.toggle.off::after { right: auto; left: 2px; }
+
+/* Hidden SOS row hint */
+.sos-row .set-row-label { color: #b06080; }
+.sos-row .set-row-sub { color: #d0a0b8; }
+
+/* ── OVERLAYS / HIDDEN FEATURE SCREENS ── */
+.overlay {
+  position: fixed; inset: 0; z-index: 100;
+  display: none; align-items: center; justify-content: center;
+  background: rgba(30,10,50,0.6);
+  backdrop-filter: blur(6px);
+  padding: 20px;
+}
+.overlay.active { display: flex; }
+.overlay-card {
+  background: #fff; border-radius: 28px;
+  width: 100%; max-width: 340px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(80,40,120,0.3);
+  animation: card-in 0.3s ease;
+}
+@keyframes card-in { from { transform: scale(0.9) translateY(20px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+
+.overlay-header {
+  padding: 20px 20px 16px;
+  background: linear-gradient(135deg, #1a0a2e, #3a1a6e);
+  color: #fff; text-align: center;
+}
+.overlay-header h2 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+.overlay-header p { font-size: 11px; opacity: 0.7; }
+
+.overlay-body { padding: 16px; }
+
+/* SOS Active Screen */
+.sos-active-header {
+  background: linear-gradient(135deg, #c0304a, #e05070);
+}
+.sos-timer {
+  text-align: center; padding: 16px;
+  font-size: 48px; font-weight: 300;
+  font-family: 'Playfair Display', serif;
+  color: var(--red);
+}
+.sos-status-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; background: rgba(220,80,100,0.07);
+  border-radius: 12px; margin-bottom: 8px;
+  font-size: 12px; color: #a02040;
+}
+.sos-status-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--red); flex-shrink: 0;
+  animation: blink 1s infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+.cancel-sos-btn {
+  width: 100%; padding: 14px; border-radius: 14px;
+  background: rgba(200,80,100,0.1); color: var(--red);
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  border: 1px solid rgba(200,80,100,0.3);
+  margin-top: 8px; text-align: center;
+}
+.cancel-sos-btn:hover { background: rgba(200,80,100,0.2); }
+
+/* Emergency Contacts Screen */
+.contact-card {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px; background: rgba(240,235,255,0.6);
+  border-radius: 14px; margin-bottom: 8px;
+  border: 1px solid rgba(180,150,220,0.2);
+}
+.contact-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 600; color: #fff; flex-shrink: 0;
+}
+.contact-name { font-size: 13px; font-weight: 500; color: var(--text); }
+.contact-role { font-size: 10px; color: var(--text-soft); }
+.contact-actions { margin-left: auto; display: flex; gap: 6px; }
+.contact-btn {
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; cursor: pointer;
+}
+.add-contact-btn {
+  width: 100%; padding: 11px; border-radius: 14px;
+  border: 1.5px dashed rgba(160,120,210,0.4);
+  text-align: center; font-size: 12px; color: var(--purple);
+  cursor: pointer; margin-top: 4px;
+}
+
+/* Recordings Screen */
+.recording-card {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; background: rgba(240,235,255,0.6);
+  border-radius: 12px; margin-bottom: 8px;
+  border: 1px solid rgba(180,150,220,0.2);
+}
+.rec-icon {
+  width: 34px; height: 34px; border-radius: 10px;
+  background: rgba(126,92,183,0.12);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; flex-shrink: 0;
+}
+.rec-name { font-size: 12px; font-weight: 500; color: var(--text); }
+.rec-meta { font-size: 10px; color: var(--text-soft); }
+.rec-duration { font-size: 11px; color: var(--purple); margin-left: auto; font-weight: 500; }
+
+.new-rec-btn {
+  width: 100%; padding: 12px; border-radius: 14px;
+  background: linear-gradient(135deg, #7e5cb7, #c084d4);
+  color: #fff; text-align: center;
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  margin-top: 4px; display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+
+/* Pattern unlock */
+.pattern-dots {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 24px; padding: 24px; justify-items: center;
+}
+.p-dot {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(160,120,210,0.2);
+  border: 2px solid rgba(160,120,210,0.3);
+  cursor: pointer; transition: all 0.15s; position: relative;
+}
+.p-dot.lit {
+  background: var(--purple);
+  border-color: var(--purple);
+  box-shadow: 0 0 10px rgba(126,92,183,0.5);
+}
+.pattern-hint { text-align: center; font-size: 11px; color: var(--text-soft); padding-bottom: 8px; }
+.pattern-wrong { color: var(--red); animation: shake 0.3s; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+/* Back btn */
+.back-btn {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--purple);
+  padding: 8px 16px 0; cursor: pointer;
+}
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+  background: #2a1040; color: #fff; border-radius: 20px;
+  padding: 10px 18px; font-size: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.3s; z-index: 200; white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+
+/* ── TAP COUNTER HINT ── */
+.tap-hint {
+  position: absolute; right: 60px; top: 22px;
+  font-size: 10px; color: var(--text-soft);
+  opacity: 0; transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+/* Navigation between overlays */
+.nav-tabs {
+  display: flex; gap: 2px;
+  background: rgba(200,180,230,0.15);
+  border-radius: 12px; padding: 3px; margin-bottom: 14px;
+}
+.nav-tab {
+  flex: 1; padding: 7px 4px; text-align: center;
+  font-size: 10px; color: var(--text-mid);
+  border-radius: 10px; cursor: pointer; transition: all 0.15s;
+}
+.nav-tab.active { background: var(--purple); color: #fff; font-weight: 500; }
+
+/* SOS countdown ring */
+.sos-ring-wrap { display: flex; justify-content: center; padding: 12px 0 4px; }
+.sos-ring { width: 80px; height: 80px; }
+.sos-ring circle { fill: none; stroke-linecap: round; }
+.sos-ring .bg { stroke: rgba(220,80,100,0.12); stroke-width: 6; }
+.sos-ring .progress { stroke: #e05070; stroke-width: 6; stroke-dasharray: 220; stroke-dashoffset: 0; transition: stroke-dashoffset 1s linear; }
+
+/* safety vault header badge */
+.vault-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(220,80,100,0.1); border-radius: 20px;
+  padding: 4px 10px; font-size: 10px; color: var(--red);
+  font-weight: 500; margin-top: 8px;
+}
+
+</style>
+</head>
+<body>
+
+<h1 class="page-title">Luna 🌙</h1>
+<p class="page-sub">Menstrual wellness · Hidden safety features demo</p>
+
+<div class="phone" id="phone">
+  <div class="notch"></div>
+
+  <!-- STATUS BAR -->
+  <div class="status-bar">
+    <span>9:41</span>
+    <div style="display:flex;gap:5px;align-items:center;font-size:10px;">
+      <span>●●●</span>
+      <span>WiFi</span>
+      <span>🔋</span>
+    </div>
+  </div>
+
+  <!-- ═══ SCREEN 1: DASHBOARD ═══ -->
+  <div class="screen active" id="screen-home">
+    <div class="dash-header">
+      <div>
+        <div class="greeting-label">Good morning,</div>
+        <div class="greeting-name">Priya 🌸</div>
+      </div>
+      <div class="avatar" id="avatar" title="Triple-tap to arm emergency">
+        P
+        <div class="avatar-dot"></div>
+      </div>
+      <span class="tap-hint" id="tapHint">tap again…</span>
+    </div>
+
+    <div class="cycle-card">
+      <div class="cycle-phase">Luteal Phase</div>
+      <div class="cycle-day">Day 18</div>
+      <div class="cycle-sub">Next period in ~10 days</div>
+      <div class="cycle-bar-wrap"><div class="cycle-bar-fill"></div></div>
+      <div class="cycle-meta"><span>Day 1</span><span>Cycle Day 28</span></div>
+    </div>
+
+    <div class="quick-stats">
+      <div class="stat-card">
+        <div class="stat-icon">💧</div>
+        <div class="stat-val">28</div>
+        <div class="stat-lbl">Avg cycle length</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🌙</div>
+        <div class="stat-val">5</div>
+        <div class="stat-lbl">Period days</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">😌</div>
+        <div class="stat-val">Calm</div>
+        <div class="stat-lbl">Today's mood</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🛡️</div>
+        <div class="stat-val" style="font-size:13px;color:#5a9070;">Active</div>
+        <div class="stat-lbl">Safety mode</div>
+      </div>
+    </div>
+
+    <div class="insight-strip">
+      <div class="insight-dot"></div>
+      <div class="insight-text">You're in the luteal phase. Energy may dip — it's a good day to rest and stay hydrated. 💜</div>
+    </div>
+
+    <!-- Hidden feature hint -->
+    <div style="margin:0 16px;padding:10px 14px;background:rgba(255,240,245,0.7);border-radius:12px;border:1px dashed rgba(210,160,180,0.4);display:flex;align-items:center;gap:8px;">
+      <span style="font-size:16px;">🔐</span>
+      <div style="font-size:10px;color:#b06080;line-height:1.5;"><strong>Hidden:</strong> Triple-tap the avatar (P) to arm silent SOS. Triple-tap <em>"Unsafe"</em> on Mood screen to trigger alert.</div>
+    </div>
+
+    <div style="height:14px;"></div>
+
+    <!-- Tab bar -->
+    <div class="tab-bar">
+      <div class="tab-item active" onclick="showScreen('home')">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 8L9 2L16 8V16H12V11H6V16H2V8Z" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>
+        <span>Home</span>
+      </div>
+      <div class="tab-item" onclick="showScreen('calendar')">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="3" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M6 2v3M12 2v3M2 8h14" stroke="currentColor" stroke-width="1.3"/></svg>
+        <span>Cycle</span>
+      </div>
+      <div class="tab-item" onclick="showScreen('mood')">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M6.5 8.5C6.5 8.5 7 10 9 10C11 10 11.5 8.5 11.5 8.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="6.5" cy="7" r="0.8" fill="currentColor"/><circle cx="11.5" cy="7" r="0.8" fill="currentColor"/></svg>
+        <span>Mood</span>
+      </div>
+      <div class="tab-item" onclick="showScreen('settings')">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="7" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M3 15c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.3"/></svg>
+        <span>Profile</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SCREEN 2: CALENDAR ═══ -->
+  <div class="screen" id="screen-calendar">
+    <div class="cal-header">
+      <div class="cal-title">March 2026</div>
+      <div class="cal-nav">
+        <div class="cal-nav-btn">‹</div>
+        <div class="cal-nav-btn">›</div>
+      </div>
+    </div>
+    <div class="cal-weekdays">
+      <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>S</div>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+
+    <div class="cal-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:rgba(208,90,130,0.5)"></div>Period</div>
+      <div class="legend-item"><div class="legend-dot" style="background:rgba(140,190,160,0.6)"></div>Fertile</div>
+      <div class="legend-item"><div class="legend-dot" style="background:rgba(180,120,220,0.5)"></div>Ovulation</div>
+      <div class="legend-item"><div class="legend-dot" style="background:rgba(130,160,220,0.6)"></div>Safe route</div>
+    </div>
+
+    <div class="cal-prediction">
+      <div class="pred-title">📊 Cycle Predictions</div>
+      <div class="pred-row"><span>Next period</span><span class="pred-val">Apr 8 – Apr 13</span></div>
+      <div class="pred-row"><span>Ovulation</span><span class="pred-val">Mar 25</span></div>
+      <div class="pred-row"><span>Fertile window</span><span class="pred-val">Mar 22 – Mar 27</span></div>
+      <div class="pred-row"><span>Cycle length</span><span class="pred-val">28 days</span></div>
+    </div>
+
+    <div class="tab-bar">
+      <div class="tab-item" onclick="showScreen('home')">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 8L9 2L16 8V16H12V11H6V16H2V8Z" stroke="currentColor" stroke-width="1.4" fill="none"/></svg><span>Home</span>
+      </div>
+      <div class="tab-item active" onclick="showScreen('calendar')">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="3" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M6 2v3M12 2v3M2 8h14" stroke="currentColor" stroke-width="1.3"/></svg><span>Cycle</span>
+      </div>
+      <div class="tab-item" onclick="showScreen('mood')">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="currentColor" stroke-width="1.3"/><circle cx="6.5" cy="7" r="0.8" fill="currentColor"/><circle cx="11.5" cy="7" r="0.8" fill="currentColor"/></svg><span>Mood</span>
+      </div>
+      <div class="tab-item" onclick="showScreen('settings')">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="7" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M3 15c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.3"/></svg><span>Profile</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SCREEN 3: MOOD ═══ -->
+  <div class="screen" id="screen-mood">
+    <div class="mood-header">
+      <div class="mood-title">How are you?</div>
+      <div class="mood-date">Mon, Mar 30</div>
+    </div>
+
+    <div class="mood-prompt">
+      <div class="mood-prompt-text">"Your feelings are valid,<br>whatever they are today."</div>
+    </div>
+
+    <div class="mood-faces">
+      <div class="mood-face" onclick="selectMood(this)">😔</div>
+      <div class="mood-face" onclick="selectMood(this)">😕</div>
+      <div class="mood-face selected" onclick="selectMood(this)">😌</div>
+      <div class="mood-face" onclick="selectMood(this)">😊</div>
+      <div class="mood-face" onclick="selectMood(this)">🥰</div>
+    </div>
+
+    <div class="symptom-section">
+      <div class="symptom-title">Physical</div>
+      <div class="symptom-chips">
+        <div class="chip active" onclick="toggleChip(this)">Cramps</div>
+        <div class="chip" onclick="toggleChip(this)">Bloating</div>
+        <div class="chip" onclick="toggleChip(this)">Headache</div>
+        <div class="chip" onclick="toggleChip(this)">Fatigue</div>
+        <div class="chip" onclick="toggleChip(this)">Back pain</div>
+      </div>
+    </div>
+
+    <div class="symptom-section" style="margin-top:10px;">
+      <div class="symptom-title">Emotional state</div>
+      <div class="symptom-chips">
+        <div class="chip active" onclick="toggleChip(this)">Calm</div>
+        <div class="chip" onclick="toggleChip(this)">Anxious</div>
+        <div class="chip" onclick="toggleChip(this)">Irritable</div>
+        <div class="chip" onclick="toggleChip(this)">Hopeful</div>
+        <!-- HIDDEN TRIGGER: triple-tap "Unsafe" to send silent SOS -->
+        <div class="chip unsafe" id="unsafeChip" onclick="tapUnsafe()">Unsafe 🔴</div>
+      </div>
+    </div>
+
+    <div style="margin: 6px 16px 6px;padding:8px 12px;background:rgba(255,240,245,0.8);border-radius:10px;border:1px dashed rgba(210,160,180,0.4);">
+      <div style="font-size:10px;color:#b06080;"><strong>Hidden:</strong> Triple-tap "Unsafe 🔴" to silently alert your emergency contacts.</div>
+    </div>
+
+    <div class="notes-area">Add a private note about today…</div>
+    <div class="log-btn" onclick="showToast('Entry saved 💜')">Save Today's Entry</div>
+
+    <div class="tab-bar">
+      <div class="tab-item" onclick="showScreen('home')">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 8L9 2L16 8V16H12V11H6V16H2V8Z" stroke="currentColor" stroke-width="1.4" fill="none"/></svg><span>Home</span>
+      </div>
+      <div class="tab-item" onclick="showScreen('calendar')">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="3" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M6 2v3M12 2v3M2 8h14" stroke="currentColor" stroke-width="1.3"/></svg><span>Cycle</span>
+      </div>
+      <div class="tab-item active" onclick="showScreen('mood')">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="currentColor" stroke-width="1.3"/><path d="M6.5 8.5C6.5 8.5 7 10 9 10C11 10 11.5 8.5 11.5 8.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="6.5" cy="7" r="0.8" fill="currentColor"/><circle cx="11.5" cy="7" r="0.8" fill="currentColor"/></svg><span>Mood</span>
+      </div>
+      <div class="tab-item" onclick="showScreen('settings')">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="7" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M3 15c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.3"/></svg><span>Profile</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ SCREEN 4: SETTINGS ═══ -->
+  <div class="screen" id="screen-settings">
+    <div class="set-header">
+      <div class="set-title">Settings</div>
+      <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="3" stroke="#b09ac5" stroke-width="1.2"/><path d="M9 1.5v2M9 14.5v2M1.5 9h2M14.5 9h2" stroke="#b09ac5" stroke-width="1.2" stroke-linecap="round"/></svg>
+    </div>
+
+    <div class="set-profile">
+      <div class="set-avatar">P</div>
+      <div>
+        <div class="set-name">Priya Sharma</div>
+        <div class="set-sub">Luna Premium · priya@email.com</div>
+      </div>
+    </div>
+
+    <div class="set-section">
+      <div class="set-section-title">Notifications</div>
+      <div class="set-group">
+        <div class="set-row">
+          <div class="set-row-icon" style="background:rgba(200,170,240,0.2);">🔔</div>
+          <div class="set-row-text"><div class="set-row-label">Period reminders</div><div class="set-row-sub">3 days before</div></div>
+          <div class="toggle" onclick="this.classList.toggle('off')"></div>
+        </div>
+        <div class="set-row">
+          <div class="set-row-icon" style="background:rgba(180,220,200,0.2);">🌿</div>
+          <div class="set-row-text"><div class="set-row-label">Daily wellness check</div><div class="set-row-sub">9:00 AM daily</div></div>
+          <div class="toggle" onclick="this.classList.toggle('off')"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="set-section">
+      <div class="set-section-title">Privacy & Safety</div>
+      <div class="set-group">
+        <div class="set-row">
+          <div class="set-row-icon" style="background:rgba(200,200,240,0.2);">🔒</div>
+          <div class="set-row-text"><div class="set-row-label">App lock</div><div class="set-row-sub">Face ID enabled</div></div>
+          <div class="toggle" onclick="this.classList.toggle('off')"></div>
+        </div>
+        <div class="set-row">
+          <div class="set-row-icon" style="background:rgba(200,220,240,0.2);">📍</div>
+          <div class="set-row-text"><div class="set-row-label">Location sharing</div><div class="set-row-sub">Trusted contacts only</div></div>
+          <div class="toggle off" onclick="this.classList.toggle('off')"></div>
+        </div>
+        <!-- Hidden SOS row — labeled "Wellness check-in" -->
+        <div class="set-row sos-row" style="cursor:pointer;" onclick="openVault()">
+          <div class="set-row-icon" style="background:rgba(240,200,210,0.25);">⭐</div>
+          <div class="set-row-text">
+            <div class="set-row-label">Wellness check-in</div>
+            <div class="set-row-sub">Trusted contacts notified · <span style="color:#e08090;">tap to manage</span></div>
+          </div>
+          <div class="toggle" style="background:linear-gradient(135deg,#d08080,#e0a0c0)"></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin:0 16px;padding:10px 14px;background:rgba(255,240,245,0.7);border-radius:12px;border:1px dashed rgba(210,160,180,0.4);">
+      <div style="font-size:10px;color:#b06080;line-height:1.6;"><strong>Hidden vault:</strong> Tap "Wellness check-in" to open the Safety Vault (pattern lock: 1→5→9→7). Contains emergency contacts, recordings, SOS controls & distress patterns.</div>
+    </div>
+
+    <div class="tab-bar">
+      <div class="tab-item" onclick="showScreen('home')">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M2 8L9 2L16 8V16H12V11H6V16H2V8Z" stroke="currentColor" stroke-width="1.4" fill="none"/></svg><span>Home</span>
+      </div>
+      <div class="tab-item" onclick="showScreen('calendar')">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><rect x="2" y="3" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M6 2v3M12 2v3M2 8h14" stroke="currentColor" stroke-width="1.3"/></svg><span>Cycle</span>
+      </div>
+      <div class="tab-item" onclick="showScreen('mood')">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="6.5" stroke="currentColor" stroke-width="1.3"/><circle cx="6.5" cy="7" r="0.8" fill="currentColor"/><circle cx="11.5" cy="7" r="0.8" fill="currentColor"/></svg><span>Mood</span>
+      </div>
+      <div class="tab-item active" onclick="showScreen('settings')">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="7" r="3" stroke="currentColor" stroke-width="1.3"/><path d="M3 15c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="1.3"/></svg><span>Profile</span>
+      </div>
+    </div>
+  </div>
+</div><!-- /phone -->
+
+<!-- ═══ OVERLAY: PATTERN UNLOCK ═══ -->
+<div class="overlay" id="overlay-pattern">
+  <div class="overlay-card">
+    <div class="overlay-header">
+      <h2>🔐 Safety Vault</h2>
+      <p>Draw your secret pattern to enter</p>
+    </div>
+    <div class="overlay-body">
+      <div class="pattern-hint" id="patternHint">Tap dots in order: ↖ → ↘ → ↙</div>
+      <div class="pattern-dots" id="patternDots">
+        <div class="p-dot" data-i="1" onclick="tapDot(1)"></div>
+        <div class="p-dot" data-i="2" onclick="tapDot(2)"></div>
+        <div class="p-dot" data-i="3" onclick="tapDot(3)"></div>
+        <div class="p-dot" data-i="4" onclick="tapDot(4)"></div>
+        <div class="p-dot" data-i="5" onclick="tapDot(5)"></div>
+        <div class="p-dot" data-i="6" onclick="tapDot(6)"></div>
+        <div class="p-dot" data-i="7" onclick="tapDot(7)"></div>
+        <div class="p-dot" data-i="8" onclick="tapDot(8)"></div>
+        <div class="p-dot" data-i="9" onclick="tapDot(9)"></div>
+      </div>
+      <div style="text-align:center;margin-top:4px;">
+        <span style="font-size:11px;color:var(--text-soft);">Hint: 1 → 5 → 9 → 7</span>
+      </div>
+      <div style="margin-top:12px;text-align:center;">
+        <span style="font-size:11px;color:var(--text-soft);cursor:pointer;" onclick="closeOverlay('overlay-pattern')">Cancel</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ OVERLAY: SAFETY VAULT ═══ -->
+<div class="overlay" id="overlay-vault">
+  <div class="overlay-card">
+    <div class="overlay-header">
+      <h2>🛡️ Safety Vault</h2>
+      <p>Your private safety features</p>
+      <div class="vault-badge">● ACTIVE PROTECTION</div>
+    </div>
+    <div class="overlay-body">
+      <div class="nav-tabs">
+        <div class="nav-tab active" onclick="vaultTab('sos')">SOS</div>
+        <div class="nav-tab" onclick="vaultTab('contacts')">Contacts</div>
+        <div class="nav-tab" onclick="vaultTab('recordings')">Records</div>
+        <div class="nav-tab" onclick="vaultTab('patterns')">Patterns</div>
+      </div>
+
+      <!-- SOS TAB -->
+      <div id="vault-sos">
+        <div style="text-align:center;padding:8px 0 4px;">
+          <div style="font-size:11px;color:var(--text-soft);margin-bottom:8px;">Hold 3 seconds to trigger silent SOS</div>
+          <div id="sosBigBtn" style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#c03050,#e06080);margin:0 auto;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 20px rgba(200,50,80,0.35);font-size:28px;font-weight:700;color:#fff;user-select:none;transition:transform 0.1s;"
+            onmousedown="startSOS()" ontouchstart="startSOS()"
+            onmouseup="cancelSOS()" ontouchend="cancelSOS()">SOS</div>
+          <div style="font-size:10px;color:var(--text-soft);margin-top:8px;">Or triple-tap avatar / "Unsafe" chip</div>
+        </div>
+        <div style="margin-top:14px;">
+          <div class="sos-status-row"><div class="sos-status-dot"></div> Location sharing armed</div>
+          <div class="sos-status-row" style="background:rgba(100,170,130,0.08);color:#3a7050;"><div style="width:8px;height:8px;border-radius:50%;background:#5a9070;flex-shrink:0;"></div> 3 emergency contacts linked</div>
+          <div class="sos-status-row" style="background:rgba(100,130,200,0.08);color:#304080;"><div style="width:8px;height:8px;border-radius:50%;background:#5060c0;flex-shrink:0;"></div> Auto-recording on trigger</div>
+        </div>
+      </div>
+
+      <!-- CONTACTS TAB -->
+      <div id="vault-contacts" style="display:none;">
+        <div class="contact-card">
+          <div class="contact-avatar" style="background:linear-gradient(135deg,#e8a0c0,#d070a0);">M</div>
+          <div>
+            <div class="contact-name">Mom</div>
+            <div class="contact-role">Primary contact · +91 98765 43210</div>
+          </div>
+          <div class="contact-actions">
+            <div class="contact-btn" style="background:rgba(90,200,130,0.15);">📞</div>
+            <div class="contact-btn" style="background:rgba(200,180,230,0.15);">💬</div>
+          </div>
+        </div>
+        <div class="contact-card">
+          <div class="contact-avatar" style="background:linear-gradient(135deg,#a0c0e8,#6090d0);">R</div>
+          <div>
+            <div class="contact-name">Riya (Best friend)</div>
+            <div class="contact-role">Secondary contact · +91 87654 32109</div>
+          </div>
+          <div class="contact-actions">
+            <div class="contact-btn" style="background:rgba(90,200,130,0.15);">📞</div>
+            <div class="contact-btn" style="background:rgba(200,180,230,0.15);">💬</div>
+          </div>
+        </div>
+        <div class="contact-card">
+          <div class="contact-avatar" style="background:linear-gradient(135deg,#c0e8a0,#80c060);">D</div>
+          <div>
+            <div class="contact-name">Dr. Meera</div>
+            <div class="contact-role">GP · +91 76543 21098</div>
+          </div>
+          <div class="contact-actions">
+            <div class="contact-btn" style="background:rgba(90,200,130,0.15);">📞</div>
+            <div class="contact-btn" style="background:rgba(200,180,230,0.15);">💬</div>
+          </div>
+        </div>
+        <div class="add-contact-btn">+ Add trusted contact</div>
+      </div>
+
+      <!-- RECORDINGS TAB -->
+      <div id="vault-recordings" style="display:none;">
+        <div class="recording-card">
+          <div class="rec-icon">🎙️</div>
+          <div>
+            <div class="rec-name">Auto-recording #3</div>
+            <div class="rec-meta">Mar 28 · SOS triggered</div>
+          </div>
+          <div class="rec-duration">1:24</div>
+        </div>
+        <div class="recording-card">
+          <div class="rec-icon">🎙️</div>
+          <div>
+            <div class="rec-name">Manual note — Mar 22</div>
+            <div class="rec-meta">Saved manually</div>
+          </div>
+          <div class="rec-duration">0:38</div>
+        </div>
+        <div class="recording-card">
+          <div class="rec-icon">📝</div>
+          <div>
+            <div class="rec-name">Incident log — Mar 15</div>
+            <div class="rec-meta">Text + location snap</div>
+          </div>
+          <div class="rec-duration">→</div>
+        </div>
+        <div class="new-rec-btn" onclick="showToast('🎙️ Recording started…')">
+          <span>🔴</span> Start new recording
+        </div>
+      </div>
+
+      <!-- PATTERNS TAB -->
+      <div id="vault-patterns" style="display:none;">
+        <div style="font-size:11px;color:var(--text-soft);margin-bottom:10px;line-height:1.6;">Luna detects unusual patterns and quietly alerts you.</div>
+        <div style="background:rgba(240,235,255,0.7);border-radius:14px;padding:12px;border:1px solid var(--border);margin-bottom:8px;">
+          <div style="font-size:11px;font-weight:600;color:var(--purple);margin-bottom:8px;">⚠️ Distress Indicators</div>
+          <div style="font-size:11px;color:var(--text-mid);line-height:1.8;">
+            ● <strong>"Unsafe"</strong> mood logged 3× this week<br>
+            ● Irregular sleep patterns detected<br>
+            ● App opens mostly late-night (10pm–2am)<br>
+            ● "Anxious" chip selected 5 days in a row
+          </div>
+        </div>
+        <div style="background:rgba(240,255,240,0.7);border-radius:14px;padding:12px;border:1px solid rgba(140,200,160,0.3);margin-bottom:8px;">
+          <div style="font-size:11px;font-weight:600;color:#4a8060;margin-bottom:6px;">✓ AI Wellness Alert Sent</div>
+          <div style="font-size:11px;color:#6a9070;">A discreet check-in was sent to Mom on Mar 27. No personal data was shared.</div>
+        </div>
+        <div style="background:rgba(245,240,255,0.7);border-radius:14px;padding:12px;border:1px solid var(--border);">
+          <div style="font-size:11px;font-weight:600;color:var(--purple);margin-bottom:6px;">🔔 Alert Sensitivity</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-top:6px;">
+            <span style="font-size:10px;color:var(--text-soft);">Low</span>
+            <div style="flex:1;height:4px;background:rgba(180,150,220,0.2);border-radius:2px;position:relative;">
+              <div style="width:65%;height:100%;background:var(--purple);border-radius:2px;"></div>
+            </div>
+            <span style="font-size:10px;color:var(--text-soft);">High</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;text-align:center;">
+        <span style="font-size:11px;color:var(--text-soft);cursor:pointer;" onclick="closeOverlay('overlay-vault')">Close vault</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ OVERLAY: SOS ACTIVE ═══ -->
+<div class="overlay" id="overlay-sos">
+  <div class="overlay-card">
+    <div class="overlay-header sos-active-header">
+      <h2>🚨 SOS Active</h2>
+      <p>Your contacts are being notified</p>
+    </div>
+    <div class="overlay-body">
+      <div class="sos-ring-wrap">
+        <svg class="sos-ring" viewBox="0 0 80 80">
+          <circle class="bg" cx="40" cy="40" r="35"/>
+          <circle class="progress" id="sosRingProgress" cx="40" cy="40" r="35" transform="rotate(-90 40 40)"/>
+        </svg>
+      </div>
+      <div class="sos-timer" id="sosTimerDisplay">0:30</div>
+
+      <div class="sos-status-row"><div class="sos-status-dot"></div> Sending location to 3 contacts…</div>
+      <div class="sos-status-row"><div class="sos-status-dot"></div> Background recording started</div>
+      <div class="sos-status-row"><div class="sos-status-dot"></div> Silent mode — screen stays normal</div>
+
+      <div class="cancel-sos-btn" onclick="deactivateSOS()">✕ Cancel SOS (I'm safe)</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Calendar ──
+const calData = {
+  period: [1,2,3,4,5],
+  fertile: [22,23,24,25,26,27],
+  ovulation: [25],
+  today: 30,
+  safe: [8,12,15,19,22]
+};
+
+function buildCalendar() {
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  // March 2026 starts on Sunday
+  const startDay = 0; // Sunday = 0
+  for (let i = 0; i < startDay; i++) {
+    const d = document.createElement('div');
+    d.className = 'cal-day dim';
+    grid.appendChild(d);
+  }
+  for (let d = 1; d <= 31; d++) {
+    const el = document.createElement('div');
+    el.className = 'cal-day';
+    el.textContent = d;
+    if (calData.period.includes(d)) el.classList.add('period');
+    else if (calData.ovulation.includes(d)) el.classList.add('ovulation');
+    else if (calData.fertile.includes(d)) el.classList.add('fertile');
+    if (d === calData.today) el.classList.add('today');
+    if (calData.safe.includes(d)) el.classList.add('safe-mark');
+    grid.appendChild(el);
+  }
+}
+buildCalendar();
+
+// ── Screen navigation ──
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+}
+
+// ── Mood ──
+function selectMood(el) {
+  document.querySelectorAll('.mood-face').forEach(f => f.classList.remove('selected'));
+  el.classList.add('selected');
+}
+function toggleChip(el) {
+  el.classList.toggle('active');
+}
+
+// ── Avatar triple-tap ──
+let avatarTaps = 0, avatarTimer = null;
+document.getElementById('avatar').addEventListener('click', function() {
+  avatarTaps++;
+  const hint = document.getElementById('tapHint');
+  if (avatarTaps === 1) {
+    hint.style.opacity = '1';
+    hint.textContent = 'tap 2× more…';
+    avatarTimer = setTimeout(() => { avatarTaps = 0; hint.style.opacity='0'; }, 1800);
+  } else if (avatarTaps === 2) {
+    hint.textContent = 'tap 1× more…';
+  } else if (avatarTaps >= 3) {
+    clearTimeout(avatarTimer);
+    hint.style.opacity = '0';
+    avatarTaps = 0;
+    this.classList.add('armed');
+    showToast('🔴 SOS armed silently');
+    setTimeout(() => activateSOS(), 600);
+  }
+});
+
+// ── Unsafe chip triple-tap ──
+let unsafeTaps = 0, unsafeTimer = null;
+function tapUnsafe() {
+  unsafeTaps++;
+  const chip = document.getElementById('unsafeChip');
+  if (unsafeTaps === 1) {
+    unsafeTimer = setTimeout(() => { unsafeTaps = 0; }, 2000);
+  } else if (unsafeTaps === 2) {
+    chip.textContent = 'Unsafe 🔴 (1 more)';
+  } else if (unsafeTaps >= 3) {
+    clearTimeout(unsafeTimer);
+    unsafeTaps = 0;
+    chip.classList.add('triggered');
+    chip.textContent = 'Unsafe 🔴';
+    showToast('🚨 Alert sent silently');
+    setTimeout(() => { activateSOS(); chip.classList.remove('triggered'); }, 800);
+  }
+}
+
+// ── Pattern Unlock ──
+let patternSeq = [];
+const correctPattern = [1, 5, 9, 7];
+
+function openVault() {
+  patternSeq = [];
+  document.querySelectorAll('.p-dot').forEach(d => d.classList.remove('lit'));
+  document.getElementById('patternHint').textContent = 'Tap dots in order: ↖ → ↘ → ↙';
+  document.getElementById('patternHint').className = 'pattern-hint';
+  document.getElementById('overlay-pattern').classList.add('active');
+}
+
+function tapDot(n) {
+  patternSeq.push(n);
+  document.querySelector(`.p-dot[data-i="${n}"]`).classList.add('lit');
+
+  if (patternSeq.length === correctPattern.length) {
+    const correct = patternSeq.every((v, i) => v === correctPattern[i]);
+    if (correct) {
+      setTimeout(() => {
+        closeOverlay('overlay-pattern');
+        vaultTab('sos');
+        document.getElementById('overlay-vault').classList.add('active');
+      }, 300);
+    } else {
+      document.getElementById('patternHint').textContent = 'Wrong pattern. Try again.';
+      document.getElementById('patternHint').className = 'pattern-hint pattern-wrong';
+      setTimeout(() => {
+        patternSeq = [];
+        document.querySelectorAll('.p-dot').forEach(d => d.classList.remove('lit'));
+        document.getElementById('patternHint').textContent = 'Tap dots in order: ↖ → ↘ → ↙';
+        document.getElementById('patternHint').className = 'pattern-hint';
+      }, 800);
+    }
+  }
+}
+
+function vaultTab(tab) {
+  ['sos','contacts','recordings','patterns'].forEach(t => {
+    document.getElementById('vault-' + t).style.display = t === tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('.nav-tab').forEach((el, i) => {
+    const tabs = ['sos','contacts','recordings','patterns'];
+    el.classList.toggle('active', tabs[i] === tab);
+  });
+}
+
+function closeOverlay(id) {
+  document.getElementById(id).classList.remove('active');
+}
+
+// ── SOS Hold button ──
+let sosHoldTimer = null;
+function startSOS() {
+  document.getElementById('sosBigBtn').style.transform = 'scale(0.93)';
+  sosHoldTimer = setTimeout(() => {
+    document.getElementById('sosBigBtn').style.transform = '';
+    closeOverlay('overlay-vault');
+    activateSOS();
+  }, 1200);
+}
+function cancelSOS() {
+  clearTimeout(sosHoldTimer);
+  document.getElementById('sosBigBtn').style.transform = '';
+}
+
+// ── SOS Active flow ──
+let sosCountdown = 30, sosInterval = null;
+function activateSOS() {
+  document.getElementById('overlay-sos').classList.add('active');
+  sosCountdown = 30;
+  updateSOSTimer();
+  sosInterval = setInterval(() => {
+    sosCountdown--;
+    updateSOSTimer();
+    if (sosCountdown <= 0) { clearInterval(sosInterval); }
+  }, 1000);
+}
+function updateSOSTimer() {
+  document.getElementById('sosTimerDisplay').textContent = '0:' + String(sosCountdown).padStart(2,'0');
+  const progress = document.getElementById('sosRingProgress');
+  const circumference = 220;
+  const offset = circumference * (1 - sosCountdown / 30);
+  progress.style.strokeDashoffset = offset;
+}
+function deactivateSOS() {
+  clearInterval(sosInterval);
+  document.getElementById('overlay-sos').classList.remove('active');
+  document.getElementById('avatar').classList.remove('armed');
+  showToast('✅ SOS cancelled — stay safe 💜');
+}
+
+// ── Toast ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
