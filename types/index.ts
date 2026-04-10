@@ -8,6 +8,7 @@ export interface User {
   lastPeriodDate: string;
   emergencyContacts: EmergencyContact[];
   settings: UserSettings;
+  createdAt?: string;
 }
 
 export interface CycleData {
