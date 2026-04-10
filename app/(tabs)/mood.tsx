@@ -63,15 +63,15 @@ export default function MoodScreen() {
     setIsSaving(true);
 
     try {
-      await moodService.addEntry(user.id, {
-        mood: selectedMood,
-        symptoms: selectedSymptoms,
-        emotions: selectedEmotions,
-        notes,
-        cycleDay: 1,
-        timestamp: new Date().toISOString(),
-      });
-
+await moodService.addEntry(user.id, {
+  userId: user.id,
+  mood: selectedMood,
+  symptoms: selectedSymptoms,
+  emotions: selectedEmotions,
+  notes,
+  cycleDay: 1,
+  // remove timestamp entirely
+});
       Alert.alert('Success', 'Mood entry saved!');
       setSelectedMood(2);
       setSelectedSymptoms([]);

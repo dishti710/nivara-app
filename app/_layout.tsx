@@ -1,67 +1,23 @@
 import { COLORS } from '@/constants/colors';
-import { AuthProvider, useAuth } from '@/context/AuthContext';
-import { SOSProvider } from '@/context/SOSContext';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import { ActivityIndicator, Text, View } from 'react-native';
+import { Tabs } from 'expo-router';
 
-SplashScreen.preventAutoHideAsync();
-
-function RootNavigator() {
-  const { firebaseUser, loading } = useAuth();
-
-  useEffect(() => {
-    if (!loading) {
-      SplashScreen.hideAsync();
-    }
-  }, [loading]);
-
-  // Force show content after 5 seconds even if loading
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      console.log('⏱️ Timeout reached');
-    }, 5000);
-
-    return () => clearTimeout(timeout);
-  }, [loading]);
-
-  if (loading) {
-    return (
-      <View
-        style={{
-          flex: 1,
-          justifyContent: 'center',
-          alignItems: 'center',
-          backgroundColor: COLORS.background,
-        }}
-      >
-        <Text style={{ fontSize: 48, marginBottom: 16 }}>🌙</Text>
-        <ActivityIndicator size="large" color={COLORS.primary} />
-        <Text style={{ marginTop: 16, color: COLORS.textLight, fontSize: 14 }}>
-          Loading Luna...
-        </Text>
-      </View>
-    );
-  }
-
+export default function TabsLayout() {
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      {firebaseUser ? (
-        <Stack.Screen name="(tabs)" />
-      ) : (
-        <Stack.Screen name="auth" />
-      )}
-    </Stack>
-  );
-}
-
-export default function RootLayout() {
-  return (
-    <AuthProvider>
-      <SOSProvider>
-        <RootNavigator />
-      </SOSProvider>
-    </AuthProvider>
+    <Tabs screenOptions={{
+      headerShown: false,
+      tabBarActiveTintColor: COLORS.primary,
+      tabBarInactiveTintColor: COLORS.textLight,
+      tabBarStyle: {
+        backgroundColor: COLORS.surface,
+        borderTopColor: '#E5E7EB',
+        paddingBottom: 8,
+        paddingTop: 8,
+      },
+    }}>
+      <Tabs.Screen name="index" options={{ title: 'Home', tabBarLabel: '🏠' }} />
+      <Tabs.Screen name="cycle" options={{ title: 'Cycle', tabBarLabel: '🔄' }} />
+      <Tabs.Screen name="mood" options={{ title: 'Mood', tabBarLabel: '😊' }} />
+      <Tabs.Screen name="profile" options={{ title: 'Profile', tabBarLabel: '👤' }} />
+    </Tabs>
   );
 }

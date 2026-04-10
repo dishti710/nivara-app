@@ -1,41 +1,5 @@
 {
-  "expo": {
-    "name": "Luna",
-    "slug": "luna-app",
-    "version": "1.0.0",
-    "orientation": "portrait",
-    "icon": "./assets/icon.png",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#FAF5FF"
-    },
-    "assetBundlePatterns": ["**/*"],
-    "ios": {
-      "supportsTabletMode": true,
-      "bundleIdentifier": "com.luna.menstrualwellness"
-    },
-    "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#FAF5FF"
-      },
-      "package": "com.luna.menstrualwellness"
-    },
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
-    "plugins": [
-      "expo-secure-store",
-      "expo-location",
-      "expo-notifications",
-      "expo-sms",
-      [
-        "expo-camera",
-        {
-          "cameraPermission": "Allow Luna to access your camera."
-        }
-      ]
-    ]
+  "android": {
+    "package": "com.anonymous.nivara"
   }
 }

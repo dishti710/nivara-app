@@ -1,7 +1,7 @@
-import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
-import * as Location from 'expo-location';
-import { useAuth } from './AuthContext';
 import { sosService } from '@/services/firebaseServices';
+import * as Location from 'expo-location';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { useAuth } from './AuthContext';
 
 interface SOSContextType {
   isSOSActive: boolean;
@@ -19,8 +19,7 @@ export function SOSProvider({ children }: { children: React.ReactNode }) {
   const [sosMessage, setSOSMessage] = useState('');
   const [sosAlertId, setSOSAlertId] = useState<string>('');
   const { user } = useAuth();
-  const timerInterval = useRef<NodeJS.Timeout | null>(null);
-
+const timerInterval = useRef<ReturnType<typeof setInterval> | null>(null);
   useEffect(() => {
     return () => {
       if (timerInterval.current) clearInterval(timerInterval.current);

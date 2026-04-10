@@ -1,5 +1,3 @@
-import { auth, db } from '@/config/firebase';
-import { User } from '@/types';
 import {
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
@@ -9,6 +7,8 @@ import {
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { auth, db } from '../config/firebase';
+import { User } from '../types';
 
 interface AuthContextType {
   user: User | null;
@@ -50,8 +50,8 @@ export function AuthProvider({
               const userData = userDocSnap.data() as User;
               console.log('✅ User loaded:', userData.name);
               setUser({
-                id: firebaseUser.uid,
                 ...userData,
+                id: firebaseUser.uid,
               });
             } else {
               console.log('⚠️ User doc not found');
@@ -142,8 +142,8 @@ export function AuthProvider({
           const userData = userDocSnap.data() as User;
           console.log('✅ User logged in:', userData.name);
           setUser({
-            id: signedInFirebaseUser.uid,
             ...userData,
+            id: signedInFirebaseUser.uid,
           });
         } else {
           console.error('⚠️ User doc not found after sign in');

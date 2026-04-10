@@ -17,7 +17,7 @@ export default function HomeScreen() {
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={styles.greeting}>Hello, {user?.name || 'Luna User'}! 🌙</Text>
+          <Text style={styles.greeting}>Hello, {user?.name || 'Nivara User'}! 🌙</Text>
           <TouchableOpacity
             onPress={signOut}
             style={styles.logoutButton}
